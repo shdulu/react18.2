@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": { // 告诉vscode如何查找路径
+      "react/*": ["packages/react/*"],
+      "react-dom/*": ["packages/react-dom/*"],
+      "react-dom-bindings/*": ["react-dom-bindings/*"],
+      "react-reconciler/*": ["packages/react-reconciler/*"],
+      "scheduler/*": ["scheduler/*"],
+      "shared/*": ["packages/shared/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist"]
+}

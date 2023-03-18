@@ -7,7 +7,7 @@
     "doc": "doc"
   },
   "scripts": {
-    "dev": "vite"
+    "dev": "vite --force"
   },
   "keywords": [],
   "author": "",
