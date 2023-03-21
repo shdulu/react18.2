@@ -82,15 +82,15 @@
 
 ###### 1.4.1.1 单向链表
 
-![单向链表](./images/virutaldom.jpg "单向链表")
+![单向链表](./images/dan_xiang_lian_biao.jpg "单向链表")
 
 ###### 1.4.1.2 双向链表
 
-![双向链表](./images/virutaldom.jpg "双向链表")
+![双向链表](./images/shuang_xiang_lian_biao_1644749407158.jpg "双向链表")
 
 ###### 1.4.1.3 循环链表
 
-![循环链表](./images/virutaldom.jpg "循环链表")
+![循环链表](./images/xun_huan_lian_biao_1644749414532.jpg "循环链表")
 
 #### 1.5 fiber
 
@@ -113,7 +113,7 @@
 - 每个帧的开头包括样式计算、布局和绘制
 - JavaScript 执行 Javascript 引擎和页面渲染引擎在同一个渲染线程,GUI 渲染和 Javascript 执行两者是互斥的
 - 如果某个任务执行时间过长，浏览器会推迟渲染
-  ![帧动画](./images/virutaldom.jpg "jsx转换流程图")
+  ![帧动画](./images/zhen.jpg "jsx转换流程图")
 
 ##### 1.5.4 requestIdleCallback
 
@@ -123,7 +123,7 @@
 
 react 并没有使用 `requestIdleCallback` API, 因为这个时间完全不可控，剩余时间由浏览器决定，而且存在兼容性问题。react 固定了每帧的空闲时间为 5ms。而且一个任务就是一个 fiber 单元，也就是最小执行单元无法被中断。
 
-![requestIdleCallback](./images/virutaldom.jpg "浏览器空闲时间")
+![requestIdleCallback](./images/requestIdleCallback.jpg "浏览器空闲时间")
 
 ##### 1.5.5 fiber
 
@@ -135,7 +135,7 @@ react 并没有使用 `requestIdleCallback` API, 因为这个时间完全不可�
 ###### 1.5.5.1 Fiber 是一个执行单元
 
 - Fiber 是一个执行单元,每次执行完一个执行单元, React 就会检查现在还剩多少时间，如果没有时间就将控制权让出去
-  ![fiber](./images/virutaldom.jpg "fiber流程图")
+  ![fiber](./images/fiberflow.jpg "fiber流程图")
 
 ###### 1.5.5.2 Fiber 是一个数据结构
 
@@ -149,11 +149,11 @@ react 并没有使用 `requestIdleCallback` API, 因为这个时间完全不可�
 - 如果有没有下一个弟弟，返回父节点标识完成父节点遍历，如果有叔叔遍历叔叔
 - 没有父节点遍历结束
 
-![fiber数据结构](./images/virutaldom.jpg "fiber数据结构")
+![fiber数据结构](./images/renderFiber.jpg "fiber数据结构")
 
 ###### 1.5.5.3 递归构建 fiber 树
 
-![递归构建 fiber 树](./images/virutaldom.jpg "递归构建 fiber 树")
+![递归构建 fiber 树](./images/diguigoujian.jpg "递归构建 fiber 树")
 
 #### 1.6 树的遍历
 
@@ -165,14 +165,14 @@ react 并没有使用 `requestIdleCallback` API, 因为这个时间完全不可�
   - React 虚拟 DOM 的构建
   - React 的 fiber 树构建
 
-![深度优先DFS](./images/virutaldom.jpg "深度优先DFS")
+![深度优先DFS](./images/dfs_he_bfs1.jpg "深度优先DFS")
 
 ##### 1.6.2 广度优先(BFS)
 
 - 宽度优先搜索算法（又称广度优先搜索），其英文全称是 Breadth First Search
 - 算法首先搜索距离为 k 的所有顶点，然后再去搜索距离为 k+l 的其他顶点
 
-![广度优先DFS](./images/virutaldom.jpg "广度优先DFS")
+![广度优先DFS](./images/dfs_he_bfs1.jpg "广度优先DFS")
 
 ##### 1.6.3 栈
 
@@ -180,7 +180,5 @@ react 并没有使用 `requestIdleCallback` API, 因为这个时间完全不可�
 - 限定仅在表尾进行插入和删除操作的线性表，这一端被称为栈顶，相对地，把另一端称为栈底
 - 向一个栈插入新元素又称作进栈、入栈或压栈，它是把新元素放到栈顶元素的上面，使之成为新的栈顶元素
 - 从一个栈删除元素又称作出栈或退栈，它是把栈顶元素删除掉，使其相邻的元素成为新的栈顶元素
-
-
 
 #### 4.创建 ReactDOMRoot
