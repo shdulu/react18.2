@@ -18,12 +18,17 @@ B1.sibling = B2;
 B1.child = C1;
 C1.sibling = C2;
 
+// 判断是否有剩余时间
+function hasRemainingTime() {
+  return true
+}
+
 //下一个工作单元
 let nextUnitOfWork = null;
 //render工作循环
 function workLoop() {
-  while (nextUnitOfWork) {
-    //执行一个任务并返回下一个任务
+  while (nextUnitOfWork && hasRemainingTime()) {
+    //执行一个任务并返回下一个任务的执行单元 fiber, 所以fiber的执行可做到中断执行
     nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
   }
   console.log("render阶段结束");
@@ -52,5 +57,4 @@ function completeUnitOfWork(fiber) {
   console.log("completeUnitOfWork", fiber.props.id);
 }
 nextUnitOfWork = A1;
-debugger;
 workLoop();

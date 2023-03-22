@@ -1,4 +1,7 @@
-import { createContainer } from "react-reconciler/src/ReactFiberReconcile";
+import {
+  createContainer,
+  updateContainer,
+} from "react-reconciler/src/ReactFiberReconciler";
 /**
  * 创建 ReactDOMRoot 项目的根
  *
@@ -8,7 +11,7 @@ import { createContainer } from "react-reconciler/src/ReactFiberReconcile";
  * @return {ReactDOMRoot}
  */
 export function createRoot(container, options) {
-  // createContainer 函数用来创建 FiberRootNode 然后传递给 ReactDOMRoot, 
+  // createContainer 函数用来创建 FiberRootNode 然后传递给 ReactDOMRoot,
   // 作为ReactDOMRoot的实例属性 _internalRoot
   const root = createContainer(container);
   return new ReactDOMRoot(root);
@@ -22,3 +25,12 @@ export function createRoot(container, options) {
 function ReactDOMRoot(internalRoot) {
   this._internalRoot = internalRoot;
 }
+
+ReactDOMRoot.prototype.render = function (children) {
+  const root = this._internalRoot;
+  if (root === null) {
+    throw new Error("Cannot update an unmounted root.");
+  }
+
+  updateContainer(children, root);
+};

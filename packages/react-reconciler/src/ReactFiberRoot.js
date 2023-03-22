@@ -16,7 +16,7 @@ export function createFiberRoot(containerInfo) {
   const root = new FiberRootNode(containerInfo);
   // 创建div#root 对应的 fiber根节点 HostRootFiber
   const uninitializedFiber = createHostRootFiber();
-  // 根容器的current 指向当前的根fiber
+  // 根容器的 current 指向当前的根fiber
   root.current = uninitializedFiber;
   // 根fiber的stateNode，也就是真实DOM节点指向FiberRootNode
   uninitializedFiber.stateNode = root;
