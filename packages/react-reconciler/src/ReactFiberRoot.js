@@ -13,12 +13,13 @@ function FiberRootNode(containerInfo) {
  * @return {FiberRootNode}
  */
 export function createFiberRoot(containerInfo) {
+  // FiberRootNode 的实例 div#root
   const root = new FiberRootNode(containerInfo);
   // 创建div#root 对应的 fiber根节点 HostRootFiber
   const uninitializedFiber = createHostRootFiber();
-  // 根容器的 current 指向当前的根fiber
+  // div#root根容器的current指向根节点fiber
   root.current = uninitializedFiber;
-  // 根fiber的stateNode，也就是真实DOM节点指向FiberRootNode
+  // 根节点fiber的stateNode属性指向，指向FiberRootNode真实DOM
   uninitializedFiber.stateNode = root;
 
   // 给fiber添加更新队列

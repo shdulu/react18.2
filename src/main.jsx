@@ -4,7 +4,7 @@ let element = (
     hello <soan style={{ color: "red" }}>world</soan>
   </h1>
 );
-
+debugger
 const root = createRoot(document.getElementById("root"));
-console.log(root)
+console.log('ReactDOMRoot', root)
 root.render(element);

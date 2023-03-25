@@ -35,7 +35,6 @@ function FiberNode(tag, pendingProps, key) {
   this.subtreeFlags = NoFlags; // 子节点副作用标识-性能优化
   // React 执行两个阶段 1. render计算副作用 2. commit提交副作用
 
-
   //   this.deletions = null;
   //   this.lanes = NoLanes;
   //   this.childLanes = NoLanes;
@@ -49,8 +48,46 @@ function FiberNode(tag, pendingProps, key) {
   this.alternate = null;
 }
 function createFiber(tag, pendingProps, key) {
-  return new FiberNode();
+  return new FiberNode(tag, pendingProps, key);
 }
+/**
+ * 创建根节点 fiber
+ *
+ * @export
+ * @return {*}
+ */
 export function createHostRootFiber() {
   return createFiber(HostRoot, null, null);
+}
+
+/**
+ * 基于老的fiber 和新的属性创建新的fiber
+ *
+ * @export
+ * @param {*} current 老的fiber
+ * @param {*} pendingProps
+ */
+export function createWorkInProgress(current, pendingProps) {
+  let workInProgress = current.alternate;
+  if (workInProgress === null) {
+    // 判断是否存在 轮替的fiber树 - 第一次存在
+    workInProgress = createFiber(current.tag, pendingProps, current.key);
+    workInProgress.type = current.type;
+    workInProgress.stateNode = current.stateNode;
+    workInProgress.alternate = current;
+    current.alternate = workInProgress;
+  } else {
+    // 复用老的fiber对象 更新fiber
+    workInProgress.pendingProps = pendingProps;
+    workInProgress.type = current.type;
+    workInProgress.flags = NoFlags;
+    workInProgress.subtreeFlags = NoFlags;
+  }
+  workInProgress.child = current.child;
+  workInProgress.memoizedProps = current.memoizedProps;
+  workInProgress.memoizedState = current.memoizedState;
+  workInProgress.updateQueue = current.updateQueue;
+  workInProgress.sibling = current.sibling;
+  workInProgress.index = current.index;
+  return workInProgress;
 }
