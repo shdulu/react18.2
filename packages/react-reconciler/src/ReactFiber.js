@@ -1,4 +1,8 @@
-import { HostRoot } from "./ReactWorkTags";
+import {
+  HostRoot,
+  IncompleteClassComponent,
+  HostComponent,
+} from "./ReactWorkTags";
 import { NoFlags } from "./ReactFiberFlags";
 
 /**
@@ -90,4 +94,26 @@ export function createWorkInProgress(current, pendingProps) {
   workInProgress.sibling = current.sibling;
   workInProgress.index = current.index;
   return workInProgress;
+}
+
+/**
+ * 根据虚拟DOM 创建fiber节点
+ *
+ * @export
+ * @param {*} element
+ */
+export function createFiberFromElement(element) {
+  const { type, key, pendingProps } = element;
+  return createFiberFromTypeAndProps(type, key, pendingProps);
+}
+
+function createFiberFromTypeAndProps(type, key, pendingProps) {
+  let tag = IncompleteClassComponent; // 未定义类型
+  if (typeof type === "string") {
+    // 原始组件
+    tag = HostComponent;
+  }
+  const fiber = createFiber(tag, pendingProps, key);
+  fiber.type = type;
+  return fiber
 }

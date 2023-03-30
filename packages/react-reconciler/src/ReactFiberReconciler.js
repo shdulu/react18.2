@@ -31,6 +31,7 @@ export function updateContainer(element, container) {
   // 更新入队
   const root = enqueueUpdate(current, update);
   if (root !== null) {
+    // 调度更新fiber
     scheduleUpdateOnFiber(root, current);
   }
 }

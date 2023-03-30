@@ -39,7 +39,7 @@ function prepareFreshStack(root) {
 }
 
 function renderRootSync(root) {
-  // 开始构建fiber树
+  // 开始构建fiber树 
   prepareFreshStack(root);
   workLoopSync();
 }
