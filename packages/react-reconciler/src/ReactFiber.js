@@ -2,6 +2,7 @@ import {
   HostRoot,
   IncompleteClassComponent,
   HostComponent,
+  HostText,
 } from "./ReactWorkTags";
 import { NoFlags } from "./ReactFiberFlags";
 
@@ -50,6 +51,7 @@ function FiberNode(tag, pendingProps, key) {
   // extra objects for things that are never updated. It also allow us to
   // reclaim the extra memory if needed.
   this.alternate = null;
+  this.index = 0;
 }
 function createFiber(tag, pendingProps, key) {
   return new FiberNode(tag, pendingProps, key);
@@ -103,7 +105,7 @@ export function createWorkInProgress(current, pendingProps) {
  * @param {*} element
  */
 export function createFiberFromElement(element) {
-  const { type, key, pendingProps } = element;
+  const { type, key, props: pendingProps } = element;
   return createFiberFromTypeAndProps(type, key, pendingProps);
 }
 
@@ -115,5 +117,15 @@ function createFiberFromTypeAndProps(type, key, pendingProps) {
   }
   const fiber = createFiber(tag, pendingProps, key);
   fiber.type = type;
-  return fiber
+  return fiber;
+}
+
+/**
+ * 创建文本类型的fiber节点
+ *
+ * @export
+ * @param {*} content
+ */
+export function createFiberFromText(content) {
+  return createFiber(HostText, content, null);
 }

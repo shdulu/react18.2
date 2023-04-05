@@ -9,10 +9,13 @@ export default function (prefix, workInProgress) {
   let tagValue = workInProgress.tag;
   let tagName = ReactWorkTagsMap.get(tagValue);
   let str = ` ${tagName} `;
-  if (tagName === "hostComponent") {
-    str + ` ${workInProgress.type} `;
+  if (tagName === "HostComponent") {
+    str += ` ${workInProgress.type} `;
   } else if (tagName === "HostText") {
-    str + ` ${workInProgress.pendingProps} `;
+    str += ` ${workInProgress.pendingProps} `;
   }
   console.log(`${prefix} ${str}`);
 }
+
+let indent = { number: 0 };
+export { indent };

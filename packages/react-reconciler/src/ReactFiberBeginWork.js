@@ -1,7 +1,8 @@
-import logger from "shared/logger";
+import logger, { indent } from "shared/logger";
 import { HostRoot, HostComponent, HostText } from "./ReactWorkTags";
 import { processUpdateQueue } from "./ReactFiberClassUpdateQueue";
 import { mountChildFibers, reconcileChildFibers } from "./ReactChildFiber";
+import { shouldSetTextContent } from "react-dom-bindings/src/ReactDOMHostConfig";
 
 /**
  * 根据新的虚拟DOM生成新的Fiber链表
@@ -33,7 +34,24 @@ function updateHostRoot(current, workInProgress) {
   reconcileChildren(current, workInProgress, nextChildren);
   return workInProgress.child; // child -> element 对应的fiber
 }
-function updateHostComponent(current, workInProgress) {}
+/**
+ * 构建原生组件的fiber链表
+ *
+ * @param {*} current 老fiber
+ * @param {*} workInProgress 新fiber
+ */
+function updateHostComponent(current, workInProgress) {
+  const { type } = workInProgress;
+  const nextProps = workInProgress.pendingProps;
+  let nextChildren = nextProps.children;
+  // 判断当前虚拟DOM它的儿子是不是一个文本的独生子
+  const isDirectTextChild = shouldSetTextContent(type, nextProps);
+  if (isDirectTextChild) {
+    nextChildren = null;
+  }
+  reconcileChildren(current, workInProgress, nextChildren);
+  return workInProgress.child;
+}
 
 /**
  * 根据虚拟DOM构建新的fiber链表 child .sibling
@@ -44,11 +62,12 @@ function updateHostComponent(current, workInProgress) {}
  * @return {*}
  */
 export function beginWork(current, workInProgress) {
-  logger("beginWork", workInProgress);
+  logger(" ".repeat(indent.number) + "beginWork", workInProgress);
+  indent.number += 2;
   switch (workInProgress.tag) {
-    case HostRoot:
+    case HostRoot: // 根节点类型
       return updateHostRoot(current, workInProgress);
-    case HostComponent:
+    case HostComponent: // 原生节点类型
       return updateHostComponent(current, workInProgress);
     case HostText:
       return null;
