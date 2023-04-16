@@ -4,6 +4,7 @@ import {
   createTextInstance,
   createInstance,
   appendInitialChild,
+  finalizeInitialChildren
 } from "react-dom-bindings/src/client/ReactDOMHostConfig";
 import { NoFlags } from "./ReactFiberFlags";
 
@@ -16,8 +17,23 @@ import { NoFlags } from "./ReactFiberFlags";
 function appendAllChildren(parent, workInProgress) {
   let node = workInProgress.child;
   while (node) {
-    appendInitialChild(parent, node.stateNode);
-    node = node.sibling;
+    // 处理真实dom节点类型
+    if (node.tag === HostComponent || node.tag === HostText) {
+      appendInitialChild(parent, node.stateNode);
+    } else if (node.child !== null) {
+      // 如果第一个儿子不是一个原生节点，说明它可能是一个函数组件节点
+      node = node.child;
+      continue;
+    }
+    if (node === workInProgress) return;
+    // 当前节点没有弟弟 - 找叔叔
+    while (node.sibling === null) {
+      if (node.return === null || node.return === workInProgress) {
+        return; // 循环结束
+      }
+      node = node.return; // 回到父节点
+    }
+    node = node.sibling; // 找父节点的 弟弟节点
   }
 }
 
@@ -38,10 +54,11 @@ export function completeWork(current, workInProgress) {
       // 创建真实的DOM节点
       const { type } = workInProgress;
       const instance = createInstance(type, newProps, workInProgress);
-      workInProgress.stateNode = instance;
       // 初次渲染把自己所有的儿子都添加到自己身上
       appendAllChildren(instance, workInProgress);
-
+      workInProgress.stateNode = instance;
+      finalizeInitialChildren(instance, type, newProps)
+      bubbleProperties(workInProgress);
       break;
     case HostText:
       // 如果是文本节点 - 创建真实的文本节点

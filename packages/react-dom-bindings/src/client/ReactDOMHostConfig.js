@@ -1,3 +1,4 @@
+import { setInitialProperties } from "./ReactDOMComponent";
 export function shouldSetTextContent(type, props) {
   return (
     typeof props.children === "string" || typeof props.children === "number"
@@ -20,7 +21,7 @@ export function createTextInstance(content) {
  * @export
  * @param {*} type 标签名
  * @param {*} props 属性
- * @param {*} workInProgress
+ * @param {*} workInProgress fiber
  */
 export function createInstance(type, props, workInProgress) {
   const domElement = document.createElement(type);
@@ -38,4 +39,16 @@ export function createInstance(type, props, workInProgress) {
  */
 export function appendInitialChild(parent, child) {
   parent.appendChild(child);
+}
+
+/**
+ *
+ *
+ * @export
+ * @param {*} domElement
+ * @param {*} type
+ * @param {*} props
+ */
+export function finalizeInitialChildren(domElement, type, props) {
+  setInitialProperties(domElement, type, props);
 }
