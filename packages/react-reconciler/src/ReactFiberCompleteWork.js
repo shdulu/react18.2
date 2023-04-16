@@ -1,10 +1,10 @@
 import logger, { indent } from "shared/logger";
-import { HostComponent, HostText } from "./ReactWorkTags";
+import { HostComponent, HostRoot, HostText } from "./ReactWorkTags";
 import {
   createTextInstance,
   createInstance,
   appendInitialChild,
-  finalizeInitialChildren
+  finalizeInitialChildren,
 } from "react-dom-bindings/src/client/ReactDOMHostConfig";
 import { NoFlags } from "./ReactFiberFlags";
 
@@ -49,6 +49,9 @@ export function completeWork(current, workInProgress) {
   logger(" ".repeat(indent.number) + "completeWork", workInProgress);
   const newProps = workInProgress.pendingProps;
   switch (workInProgress.tag) {
+    case HostRoot:
+      bubbleProperties(workInProgress);
+      break;
     // 原生节点类型
     case HostComponent:
       // 创建真实的DOM节点
@@ -57,7 +60,7 @@ export function completeWork(current, workInProgress) {
       // 初次渲染把自己所有的儿子都添加到自己身上
       appendAllChildren(instance, workInProgress);
       workInProgress.stateNode = instance;
-      finalizeInitialChildren(instance, type, newProps)
+      finalizeInitialChildren(instance, type, newProps);
       bubbleProperties(workInProgress);
       break;
     case HostText:
