@@ -8,7 +8,7 @@ let element = (
 function Counter() {
   return <div>this is Counter</div>;
 }
-
+debugger
 const root = createRoot(document.getElementById("root"));
 console.log("ReactDOMRoot", root);
 root.render(element);
