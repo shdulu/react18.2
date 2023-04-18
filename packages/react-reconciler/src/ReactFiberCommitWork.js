@@ -1,3 +1,7 @@
+import {
+  appendChild,
+  insertBefore,
+} from "react-dom-bindings/src/client/ReactDOMHostConfig";
 import { MutationMask, Placement } from "./ReactFiberFlags";
 import { HostComponent, HostRoot, HostText } from "./ReactWorkTags";
 
@@ -22,7 +26,117 @@ function commitReconciliationEffects(finishedWork) {
   }
 }
 
-function commitPlacement() {}
+function isHostParent(fiber) {
+  return fiber.tag === HostComponent || fiber.tag === HostRoot;
+}
+
+function getHostParentFiber(fiber) {
+  let parent = fiber.return;
+  while (parent !== null) {
+    if (isHostParent(parent)) {
+      return parent;
+    }
+    parent = parent.return;
+  }
+}
+
+/**
+ * 把子节点对应的真实DOM插入到父节点DOM中
+ *
+ * @param {*} node 将要插入的fiber节点
+ * @param {*} before
+ * @param {*} parent 父真实DOM节点
+ */
+function insertOrAppendPlacementNode(node, before, parent) {
+  const { tag } = node;
+  // 判断此fiber对用的节点是否未真实dom节点
+  const isHost = tag === HostComponent || tag === HostText;
+  if (isHost) {
+    // 如果是真实DOM节点类型的fiber 获取fiber的真实dom直接插入到父节点
+    const { stateNode } = node;
+    if (before) {
+      // 插入到最近的弟弟真实DOM的前面
+      insertBefore(parent, stateNode, before);
+    } else {
+      appendChild(parent, stateNode);
+    }
+  } else {
+    // 如果不是真实dom节点类型fiber，获取大儿子，依次递归执行子节点的 dom插入操作
+    const { child } = node;
+    if (child !== null) {
+      insertOrAppendPlacementNode(node, parent);
+      let { sibling } = child;
+      while (sibling !== null) {
+        insertOrAppendPlacementNode(sibling, parent);
+        sibling = sibling.sibling;
+      }
+    }
+  }
+}
+
+/**
+ * 找离fiber最近的真实DOM节点类型的弟弟，做为插入的锚点位置
+ *
+ * @param {Fiber} fiber
+ */
+function getHostSibling(fiber) {
+  // We're going to search forward into the tree until we find a sibling host
+  // node. Unfortunately, if multiple insertions are done in a row we have to
+  // search past them. This leads to exponential search for the next sibling.
+  // TODO: Find a more efficient way to do this.
+  let node = fiber;
+  siblings: while (true) {
+    while (node.sibling === null) {
+      if (node.return === null || isHostParent(node.return)) {
+        // If we pop out of the root or hit the parent the fiber we are the
+        // last sibling.
+        return null;
+      }
+      node = node.return;
+    }
+    // node.sibling.return = node.return;
+    node = node.sibling;
+    // 如果弟弟不是原生节点也不是文本节点
+    while (node.tag !== HostComponent && node.tag !== HostText) {
+      // 如果此节点是一个将要插入的节点，找它的弟弟
+      if (node.flags & Placement) {
+        // If we don't have a child, try the siblings instead.
+        continue siblings;
+      } else {
+        node = node.child;
+      }
+      if (!(node.flags & Placement)) {
+        return node.stateNode;
+      }
+    }
+  }
+}
+
+/**
+ * 把此fiber的真实DOM插入到父DOM里
+ *
+ * @param {*} finishedWork
+ */
+function commitPlacement(finishedWork) {
+  // 拿到finishedWork fiber 真实DOM的父fiber
+  const parentFiber = getHostParentFiber(finishedWork);
+  switch (parentFiber.tag) {
+    case HostRoot: {
+      const parent = parentFiber.stateNode.containerInfo;
+      const before = getHostSibling(finishedWork); // 获取最近的真实DOM节点的弟弟
+      insertOrAppendPlacementNode(finishedWork, before, parent);
+      break;
+    }
+    case HostComponent: {
+      const parent = parentFiber.stateNode;
+      const before = getHostSibling(finishedWork); // 获取最近的真实DOM节点的弟弟
+      insertOrAppendPlacementNode(finishedWork, before, parent);
+      break;
+    }
+    default:
+      break;
+  }
+}
 
 /**
  * 遍历fiber树，执行fiber上的副作用
