@@ -4,8 +4,9 @@ import { scheduleCallback } from "../../scheduler";
 import { createWorkInProgress } from "./ReactFiber";
 import { beginWork } from "./ReactFiberBeginWork";
 import { completeWork } from "./ReactFiberCompleteWork";
-import { NoFlags, MutationMask } from "./ReactFiberFlags";
+import { NoFlags, MutationMask, Placement } from "./ReactFiberFlags";
 import { commitMutationEffectsOnFiber } from "./ReactFiberCommitWork";
+import { HostComponent, HostRoot, HostText } from "./ReactWorkTags";
 
 let workInProgress = null; // 正在构建中的fiber 树
 // FiberRootNode.current 当前页面中的fiber 树
@@ -38,11 +39,13 @@ function performConcurrentWorkOnRoot(root) {
   // 开始进入提交阶段，就是执行副作用，修改真实DOM
   const finishedWork = root.current.alternate; // 新构建出来的fiber树
   root.finishedWork = finishedWork;
+  // debugger;
   commitRoot(root);
 }
 
 function commitRoot(root) {
   const { finishedWork } = root;
+  printFinishedWork(finishedWork);
   // 判断子树是否有副作用
   const subtreeHasEffects =
     (finishedWork.subtreeFlags & MutationMask) !== NoFlags;
@@ -109,4 +112,43 @@ function completeUnitOfWork(unitOfWork) {
     completedWork = returnFiber;
     workInProgress = completedWork;
   } while (completedWork !== null);
+}
+
+function printFinishedWork(fiber) {
+  let child = fiber.child;
+  while (child) {
+    printFinishedWork(child);
+    child = child.sibling;
+  }
+  if (fiber.flags !== 0) {
+    console.log(
+      getFlags(fiber.flags),
+      getTag(fiber.tag),
+      fiber.type,
+      fiber.memoizedProps
+    );
+  }
+}
+function getTag(tag) {
+  switch (tag) {
+    case HostComponent:
+      return "HostComponent";
+    case HostRoot:
+      return "HostRoot";
+    case HostText:
+      return "HostText";
+    default:
+      break;
+  }
+}
+function getFlags(flags) {
+  switch (flags) {
+    case Placement:
+      return "插入";
+    case Update:
+      return "更新";
+
+    default:
+      break;
+  }
 }
