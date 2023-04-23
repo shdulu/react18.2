@@ -1,6 +1,6 @@
 import {
   HostRoot,
-  IncompleteClassComponent,
+  IndeterminateComponent,
   HostComponent,
   HostText,
 } from "./ReactWorkTags";
@@ -74,6 +74,7 @@ export function createHostRootFiber() {
  * @param {*} pendingProps
  */
 export function createWorkInProgress(current, pendingProps) {
+  // debugger
   let workInProgress = current.alternate;
   if (workInProgress === null) {
     // 判断是否存在 轮替的fiber树 - 第一次存在
@@ -110,7 +111,7 @@ export function createFiberFromElement(element) {
 }
 
 function createFiberFromTypeAndProps(type, key, pendingProps) {
-  let tag = IncompleteClassComponent; // 未定义类型
+  let tag = IndeterminateComponent; // 未定义类型
   if (typeof type === "string") {
     // 原始组件
     tag = HostComponent;

@@ -1,8 +1,15 @@
 import logger, { indent } from "shared/logger";
-import { HostRoot, HostComponent, HostText } from "./ReactWorkTags";
+import {
+  HostRoot,
+  HostComponent,
+  HostText,
+  IndeterminateComponent,
+  FunctionComponent,
+} from "./ReactWorkTags";
 import { processUpdateQueue } from "./ReactFiberClassUpdateQueue";
 import { mountChildFibers, reconcileChildFibers } from "./ReactChildFiber";
 import { shouldSetTextContent } from "react-dom-bindings/src/client/ReactDOMHostConfig";
+import { renderWithHooks } from "./ReactFiberHooks";
 
 /**
  * 根据新的虚拟DOM生成新的Fiber链表
@@ -54,6 +61,26 @@ function updateHostComponent(current, workInProgress) {
 }
 
 /**
+ * 挂载函数组件
+ *
+ * @export
+ * @param {*} current 老fiber
+ * @param {*} workInProgress 新fiber
+ * @param {*} Component 组件类型 也就是函数组件的定义
+ */
+export function mountIndeterminateComponent(
+  current,
+  workInProgress,
+  Component
+) {
+  const props = workInProgress.pendingProps;
+  const value = renderWithHooks(current, workInProgress, Component, props); // 函数组件的返回
+  workInProgress.tag = FunctionComponent;
+  reconcileChildren(current, workInProgress, value);
+  return workInProgress.child;
+}
+
+/**
  * 根据虚拟DOM构建新的fiber链表 child .sibling
  *
  * @export
@@ -69,9 +96,15 @@ export function beginWork(current, workInProgress) {
       return updateHostRoot(current, workInProgress);
     case HostComponent: // 原生节点类型
       return updateHostComponent(current, workInProgress);
+    case IndeterminateComponent:
+      return mountIndeterminateComponent(
+        current,
+        workInProgress,
+        workInProgress.type
+      );
     case HostText:
       return null;
     default:
+      return null;
   }
-  // return null
 }
