@@ -17,13 +17,23 @@ import { createRoot } from "react-dom/client";
 
 function FunctionComponent() {
   return (
-    <h1 id="container" onClick={() => console.log("点击 container")}>
-      hello <span style={{ color: "red" }}>world</span>
+    <h1
+      id="container"
+      onClick={() => console.log("父冒泡")}
+      onClickCapture={() => console.log(`父捕获`)}
+    >
+      hello
+      <span
+        onClick={() => console.log("子冒泡")}
+        onClickCapture={() => console.log("子捕获")}
+        style={{ color: "red" }}
+      >
+        world
+      </span>
     </h1>
   );
 }
-let element = <FunctionComponent></FunctionComponent>;
-
+let element = <FunctionComponent title="函数组件"></FunctionComponent>;
 // let element = (
 //   <h1 id="container">
 //     hello <span style={{ color: "red" }}>world</span>

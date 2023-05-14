@@ -8,6 +8,14 @@ import isArray from "shared/isArray";
  * @param {*} shouldTrackSideEffects 是否更新副作用
  */
 function createChildReconciler(shouldTrackSideEffects) {
+  /**
+   *
+   *
+   * @param {*} returnFiber 父fiber节点
+   * @param {*} currentFirstFiber
+   * @param {*} element 子虚拟DOM
+   * @return {Fiber} 
+   */
   function reconcileSingleElement(returnFiber, currentFirstFiber, element) {
     // 因为我们实现的是初次挂载，老节点的currentFirstFiber 肯定是没有的，可以直接根据虚拟DOM创建新的Fiber
     const created = createFiberFromElement(element);

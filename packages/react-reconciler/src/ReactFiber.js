@@ -74,7 +74,6 @@ export function createHostRootFiber() {
  * @param {*} pendingProps
  */
 export function createWorkInProgress(current, pendingProps) {
-  // debugger
   let workInProgress = current.alternate;
   if (workInProgress === null) {
     // 判断是否存在 轮替的fiber树 - 第一次存在
