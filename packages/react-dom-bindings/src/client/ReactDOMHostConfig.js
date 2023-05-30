@@ -18,14 +18,16 @@ export function createTextInstance(content) {
 
 /**
  * 创建真实DOM
+ * 原生组件初次挂载的时候，会通过此方法创建真实DOM
  *
  * @export
  * @param {*} type 标签名
  * @param {*} props 属性
- * @param {*} internalInstanceHandle fiber
+ * @param {*} internalInstanceHandle 真实dom对应的fiber
  */
 export function createInstance(type, props, internalInstanceHandle) {
   const domElement = document.createElement(type);
+  // 预先缓存fiber节点到DOM元素上
   precacheFiberNode(internalInstanceHandle, domElement);
   // 把属性直接保存在domElement的属性
   updateFiberProps(domElement, props);

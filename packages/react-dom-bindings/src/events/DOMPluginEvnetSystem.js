@@ -70,9 +70,9 @@ export function listenToNativeEvent(
  *
  *
  * @param {*} targetContainer div#root
- * @param {*} domEventName
- * @param {*} eventSystemFlags
- * @param {*} isCapturePhaseListener
+ * @param {*} domEventName click
+ * @param {*} eventSystemFlags 默认是0指的是冒泡， 4是捕获
+ * @param {*} isCapturePhaseListener 是否是捕获阶段
  */
 function addTrappedEventListener(
   targetContainer,
