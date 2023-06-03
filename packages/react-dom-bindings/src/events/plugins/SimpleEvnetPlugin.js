@@ -10,12 +10,12 @@ import { SyntheticMouseEvent } from "../SyntheticEvent";
  * 把要执行的回调函数添加到dispatchQueue中
  *
  * @param {*} dispatchQueue 派发队列，里面放置我们的监听函数
- * @param {*} domEventName DOM事件名
+ * @param {*} domEventName DOM事件名 click
  * @param {*} targetInst 目标fiber
  * @param {*} nativeEvent 原生事件
  * @param {*} nativeEventTarget 原生事件源
  * @param {*} eventSystemFlags 0 表示冒泡 4表示捕获
- * @param {*} targetContainer
+ * @param {*} targetContainer 目标容器div#root
  */
 function extractEvents(
   dispatchQueue,
@@ -26,6 +26,7 @@ function extractEvents(
   eventSystemFlags,
   targetContainer
 ) {
+  // 原生事件对应的react事件属性名
   const reactName = topLevelEventsToReactNames.get(domEventName); // click => onClick
   let SyntheticEventCtor; // 合成事件的构造函数
   switch (domEventName) {
@@ -52,9 +53,9 @@ function extractEvents(
     const event = new SyntheticEventCtor(
       reactName,
       domEventName,
-      targetInst,
-      nativeEvent.type,
-      isCapturePhase
+      null,
+      nativeEvent,
+      nativeEventTarget
     );
 
     dispatchQueue.push({

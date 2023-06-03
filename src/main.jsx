@@ -19,13 +19,19 @@ function FunctionComponent() {
   return (
     <h1
       id="container"
-      onClick={() => console.log("父冒泡")}
-      onClickCapture={() => console.log(`父捕获`)}
+      onClick={(event) => console.log("父冒泡", event.currentTarget)}
+      onClickCapture={(event) => {
+        console.log(`父捕获`, event.currentTarget)
+        event.stopPropagation()
+      }}
     >
       hello
       <span
-        onClick={() => console.log("子冒泡")}
-        onClickCapture={() => console.log("子捕获")}
+        onClick={(event) => {
+          console.log("子冒泡", event.currentTarget)
+          event.stopPropagation()
+        }}
+        onClickCapture={(event) => console.log("子捕获", event.currentTarget)}
         style={{ color: "red" }}
       >
         world

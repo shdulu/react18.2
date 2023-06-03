@@ -67,7 +67,7 @@ export function listenToNativeEvent(
 }
 
 /**
- *
+ * 在根节点div#root上监听事件
  *
  * @param {*} targetContainer div#root
  * @param {*} domEventName click
@@ -80,6 +80,7 @@ function addTrappedEventListener(
   eventSystemFlags,
   isCapturePhaseListener
 ) {
+  // 监听事件的回调
   const listener = createEventListerWrapperWithPriority(
     targetContainer,
     domEventName,
@@ -116,6 +117,7 @@ function dispatchEventForPlugins(
   targetInst,
   targetContainer
 ) {
+  // 出发事件的事件源
   const nativeEventTarget = getEventTarget(nativeEvent);
   // 派发事件的数组
   const dispatchQueue = [];
@@ -128,7 +130,45 @@ function dispatchEventForPlugins(
     eventSystemFlags,
     targetContainer
   );
-  console.log("dispatchQueue", dispatchQueue);
+  processDispatchQueue(dispatchQueue, eventSystemFlags);
+}
+function processDispatchQueue(dispatchQueue, eventSystemFlags) {
+  // 判断是否在捕获阶段
+  const inCapturePhase = eventSystemFlags & IS_CAPTURE_PHASE;
+  for (let i = 0; i < dispatchQueue.length; i++) {
+    const { event, listeners } = dispatchQueue[i];
+    processDispatchQueueItemsInOrder(event, listeners, inCapturePhase);
+  }
+}
+function executeDispatch(event, listener, currentTarget) {
+  // 合成事件实例currentTarget是在不断的变化的
+  // event nativeEventTarget 它是原始的事件源，是永远不变的
+  // event currentTarget 当前的事件源，它是会随着事件回调的执行不断变化的
+  event.currentTarget = currentTarget;
+  listener(event);
+}
+function processDispatchQueueItemsInOrder(
+  event,
+  dispatchListeners,
+  inCapturePhase
+) {
+  if (inCapturePhase) {
+    for (let i = dispatchListeners.length - 1; i >= 0; i--) {
+      const { listener, currentTarget } = dispatchListeners[i];
+      if (event.isPropagationStopped()) {
+        return;
+      }
+      executeDispatch(event, listener, currentTarget);
+    }
+  } else {
+    for (let i = 0; i < dispatchListeners.length; i++) {
+      const { listener, currentTarget } = dispatchListeners[i];
+      if (event.isPropagationStopped()) {
+        return;
+      }
+      executeDispatch(event, listener, currentTarget);
+    }
+  }
 }
 
 function extractEvents(
@@ -162,16 +202,23 @@ export function accumulateSinglePhaseListeners(
   const listeners = [];
   let instance = targetFiber;
   while (instance !== null) {
-    const { stateNode, tag } = instance;
+    const { stateNode, tag } = instance; // stateNode 当前执行回调的DOM节点
     if (tag === HostComponent && stateNode !== null) {
       if (reactEventName !== null) {
         const listener = getListener(instance, reactEventName);
         if (listener) {
-          listeners.push(listener);
+          listeners.push(createDispatchListener(instance, listener, stateNode));
         }
       }
     }
     instance = instance.return;
   }
   return listeners;
+}
+function createDispatchListener(instance, listener, currentTarget) {
+  return {
+    instance,
+    listener,
+    currentTarget,
+  };
 }
