@@ -97,6 +97,7 @@ export function beginWork(current, workInProgress) {
     case HostComponent: // 原生节点类型
       return updateHostComponent(current, workInProgress);
     case IndeterminateComponent:
+      debugger
       return mountIndeterminateComponent(
         current,
         workInProgress,
