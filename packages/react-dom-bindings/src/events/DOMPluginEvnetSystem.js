@@ -94,6 +94,16 @@ function addTrappedEventListener(
   }
 }
 
+/**
+ *
+ *
+ * @export
+ * @param {*} domEventName click
+ * @param {*} eventSystemFlags 0 | 4
+ * @param {*} nativeEvent 原生事件
+ * @param {*} targetInst 目标元素对应的fiber
+ * @param {*} targetContainer div#root
+ */
 export function dispatchEventForPluginEventSystem(
   domEventName,
   eventSystemFlags,
@@ -117,7 +127,7 @@ function dispatchEventForPlugins(
   targetInst,
   targetContainer
 ) {
-  // 出发事件的事件源
+  // 触发事件的事件源
   const nativeEventTarget = getEventTarget(nativeEvent);
   // 派发事件的数组
   const dispatchQueue = [];
