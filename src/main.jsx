@@ -23,6 +23,7 @@ function reducer(state, action) {
 
 function FunctionComponent() {
   const [count, setCount] = React.useReducer(reducer, 0);
+  const [count2, setCount2] = React.useReducer(reducer, 0);
   return (
     <h1
       id="container"
@@ -43,7 +44,15 @@ function FunctionComponent() {
       >
         world
       </span>
-      <button onClick={() => setCount({ type: "add", payload: 1 })}>{count}</button>
+      <button
+        onClick={() => {
+          setCount({ type: "add", payload: 1 }); // update1 => update2 => update3 => update1
+          setCount({ type: "add", payload: 1 }); // update2
+          setCount({ type: "add", payload: 1 }); // update3
+        }}
+      >
+        {count}
+      </button>
     </h1>
   );
 }

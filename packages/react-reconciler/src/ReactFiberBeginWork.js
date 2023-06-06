@@ -35,6 +35,7 @@ function reconcileChildren(current, workInProgress, nextChildren) {
 function updateHostRoot(current, workInProgress) {
   // 需要知道它的子虚拟DOM，知道它的儿子的虚拟DOM信息
   processUpdateQueue(workInProgress); // workInProgress.memoizedState={element}
+  // 根节点的 HostRootFiber.memoizedState 属性指向虚拟DOM
   const nextState = workInProgress.memoizedState;
   const nextChildren = nextState.element;
   // 根据新的虚拟DOM生成子fiber链表
