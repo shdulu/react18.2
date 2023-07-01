@@ -17,38 +17,23 @@ import * as React from "react";
 // console.log(element1)
 
 function reducer(state, action) {
-  if (action.type === "add") return state + 1;
+  if (action.type === "add") return state + action.payload;
   return state;
 }
 
 function FunctionComponent() {
+  // debugger;
   const [count, setCount] = React.useReducer(reducer, 0);
-  const [count2, setCount2] = React.useReducer(reducer, 0);
+  const [count2, setCount2] = React.useReducer(reducer, 100);
   return (
-    <h1
-      id="container"
-      // onClick={(event) => console.log("父冒泡", event.currentTarget)}
-      onClickCapture={(event) => {
-        // console.log(`父捕获`, event.currentTarget);
-        event.stopPropagation();
-      }}
-    >
+    <h1 id="container">
       hello
-      <span
-        onClick={(event) => {
-          // console.log("子冒泡", event.currentTarget);
-          event.stopPropagation();
-        }}
-        // onClickCapture={(event) => console.log("子捕获", event.currentTarget)}
-        style={{ color: "red" }}
-      >
-        world
-      </span>
+      <span style={{ color: "red" }}>world</span>
       <button
         onClick={() => {
-          setCount({ type: "add", payload: 1 }); // update1 => update2 => update3 => update1
-          setCount({ type: "add", payload: 1 }); // update2
-          setCount({ type: "add", payload: 1 }); // update3
+          setCount({ type: "add", payload: 1 }); // update1.next => update2.next => update3.next => update1
+          setCount({ type: "add", payload: 2 }); // update2
+          setCount({ type: "add", payload: 3 }); // update3
         }}
       >
         {count}

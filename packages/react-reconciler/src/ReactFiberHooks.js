@@ -1,26 +1,37 @@
 import { dispatchEvent } from "react-dom-bindings/src/events/ReactDOMEventLister";
 import ReactSharedInternals from "shared/ReactSharedInternals";
+import { enqueueConcurrentHookUpdate } from "./ReactFiberConcurrentUpdates";
+import { scheduleUpdateOnFiber } from "./ReactFiberWorkLoop";
 
 const { ReactCurrentDispatcher } = ReactSharedInternals;
-let currentRenderingFiber = null; // 当前正在渲染中的fiber
+let currentlyRenderingFiber = null; // 当前正在渲染中的fiber
 let workInProgressHook = null; //
 
 const HooksDispatcherOnMount = {
   useReducer: mountReducer,
 };
 
+/**
+ * useReducer hooks 执行实际执行此函数
+ *
+ * @param {*} reducer reducer -> useReducer 执行的action函数
+ * @param {*} initialArg 初始默认值
+ * @return {*}
+ */
 function mountReducer(reducer, initialArg) {
   const hook = mountWorkInProgressHook();
   hook.memoizedState = initialArg;
   const queue = {
+    // 当前hooks的更新队列
     pending: null,
+    dispatch: null,
   };
   hook.queue = queue;
-  const dispatch = dispatchReducerAction.bind(
+  const dispatch = (queue.dispatch = dispatchReducerAction.bind(
     null,
-    currentRenderingFiber,
+    currentlyRenderingFiber,
     queue
-  );
+  ));
   return [hook.memoizedState, dispatch];
 }
 
@@ -32,7 +43,16 @@ function mountReducer(reducer, initialArg) {
  * @param {*} action 派发的动作
  */
 function dispatchReducerAction(fiber, queue, action) {
-  console.log(fiber, queue, action);
+  // debugger;
+  // 更新会在每个hook里存放一个更新队列，更新队列是一个更新对象的循环链表
+  const update = {
+    action, // 更新动作 {type: 'add', payload: 1}
+    next: null,
+  };
+  // 1. 把当前最新的更新对象添加到更新队列中，并且返回当前的根fiber节点,
+  // 2.入队并发的hook更新
+  const root = enqueueConcurrentHookUpdate(fiber, queue, update);
+  scheduleUpdateOnFiber(root);
 }
 
 /**
@@ -41,15 +61,15 @@ function dispatchReducerAction(fiber, queue, action) {
  */
 function mountWorkInProgressHook() {
   const hook = {
-    memoizedState: null, // hook的状态
-    queue: null, // 存放本hook的更新队列 构成一个双向循环链表
-    next: null, // 指向下一个hook，一个函数里面可能会有多个hook，它们会组成一个循环链表
+    memoizedState: null, // hook的状态 - 指向链表头
+    queue: null, // 存放本hook的更新队列 构成一个双向循环链表 queue.pending=update
+    next: null, // 指向下一个hook，一个函数里面可能会有多个hook，它们会组成一个单向链表
   };
   // 构建一个单向循环链表
   if (workInProgressHook === null) {
     // 当前函数对应的fiber的状态memoizedState 指向hooks链表中的第一个
     // 函数组件的memoizedState属性存的是hook的单链表
-    currentRenderingFiber.memoizedState = workInProgressHook = hook;
+    currentlyRenderingFiber.memoizedState = workInProgressHook = hook;
   } else {
     workInProgressHook = workInProgressHook.next = hook;
   }
@@ -67,7 +87,8 @@ function mountWorkInProgressHook() {
  * @returns 虚拟DOM或者说React元素
  */
 export function renderWithHooks(current, workInProgress, Component, props) {
-  currentRenderingFiber = workInProgress; // 当前正在执行的fiber
+  currentlyRenderingFiber = workInProgress; // 当前正在执行的fiber
+  // React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED
   ReactCurrentDispatcher.current = HooksDispatcherOnMount;
   // 需要在函数组件执行前给 ReactCurrentDispatcher.current 赋值
   const children = Component(props);

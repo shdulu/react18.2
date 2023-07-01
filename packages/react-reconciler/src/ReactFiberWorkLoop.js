@@ -7,8 +7,11 @@ import { completeWork } from "./ReactFiberCompleteWork";
 import { NoFlags, MutationMask, Placement } from "./ReactFiberFlags";
 import { commitMutationEffectsOnFiber } from "./ReactFiberCommitWork";
 import { HostComponent, HostRoot, HostText } from "./ReactWorkTags";
+import { finishQueueingConcurrentUpdates } from "./ReactFiberConcurrentUpdates";
 
 let workInProgress = null; // 正在构建中的fiber 树
+let workInProgressRoot = null; // 当前正在调度的根节点
+
 // FiberRootNode.current 当前页面中的fiber 树
 
 /**
@@ -24,7 +27,13 @@ export function scheduleUpdateOnFiber(root, fiber) {
 }
 
 function ensureRootIsScheduled(root) {
+  /** 批量更新防止多次调用 start */
+  if (workInProgressRoot) return;
+  workInProgressRoot = root;
+  /**批量更新防止多次调用 end*/
+
   // 告诉浏览器要执行 performConcurrentWorkOnRoot
+  console.log("ensureRootIsScheduled");
   scheduleCallback(performConcurrentWorkOnRoot.bind(null, root));
 }
 /**
@@ -40,11 +49,14 @@ function performConcurrentWorkOnRoot(root) {
   const finishedWork = root.current.alternate; // 新构建出来的fiber树
   root.finishedWork = finishedWork;
   commitRoot(root);
+  /**调动更新完成 scheduleUpdateOnFiber-end*/
+  workInProgressRoot = null;
 }
 
 function commitRoot(root) {
   const { finishedWork } = root;
   printFinishedWork(finishedWork);
+  console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
   // 判断子树是否有副作用
   const subtreeHasEffects =
     (finishedWork.subtreeFlags & MutationMask) !== NoFlags;
@@ -59,7 +71,7 @@ function commitRoot(root) {
 
 function prepareFreshStack(root) {
   workInProgress = createWorkInProgress(root.current, null);
-  console.log("workInProgress", workInProgress);
+  finishQueueingConcurrentUpdates();
 }
 
 function renderRootSync(root) {

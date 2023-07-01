@@ -13,5 +13,7 @@ function resolveDispatcher() {
  */
 export function useReducer(reducer, initialArg) {
   const dispatcher = resolveDispatcher();
+  // renderWithHooks执行给 -> ReactCurrentDispatcher.current 添加 useReducer属性
+  // 调用useReducer实际是执行
   return dispatcher.useReducer(reducer, initialArg);
 }

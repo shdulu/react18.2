@@ -90,7 +90,7 @@ export function mountIndeterminateComponent(
  * @return {*}
  */
 export function beginWork(current, workInProgress) {
-  logger(" ".repeat(indent.number) + "beginWork", workInProgress);
+  // logger(" ".repeat(indent.number) + "beginWork", workInProgress);
   indent.number += 2;
   switch (workInProgress.tag) {
     case HostRoot: // 根节点类型
@@ -98,7 +98,7 @@ export function beginWork(current, workInProgress) {
     case HostComponent: // 原生节点类型
       return updateHostComponent(current, workInProgress);
     case IndeterminateComponent:
-      debugger
+      // debugger
       return mountIndeterminateComponent(
         current,
         workInProgress,
