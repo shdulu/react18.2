@@ -39,7 +39,7 @@ function ensureRootIsScheduled(root) {
 /**
  * 根据虚拟DOM构建fiber，要创建真实的DOM节点，插入到容器
  * 执行root上的并发更新工作
- *
+ * 
  * @param {*} root
  */
 function performConcurrentWorkOnRoot(root) {
@@ -56,7 +56,6 @@ function performConcurrentWorkOnRoot(root) {
 function commitRoot(root) {
   const { finishedWork } = root;
   printFinishedWork(finishedWork);
-  console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
   // 判断子树是否有副作用
   const subtreeHasEffects =
     (finishedWork.subtreeFlags & MutationMask) !== NoFlags;
@@ -71,6 +70,7 @@ function commitRoot(root) {
 
 function prepareFreshStack(root) {
   workInProgress = createWorkInProgress(root.current, null);
+  // 完成队列的并发更新
   finishQueueingConcurrentUpdates();
 }
 

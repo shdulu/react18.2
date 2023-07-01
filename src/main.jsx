@@ -22,7 +22,7 @@ function reducer(state, action) {
 }
 
 function FunctionComponent() {
-  // debugger;
+  debugger;
   const [count, setCount] = React.useReducer(reducer, 0);
   const [count2, setCount2] = React.useReducer(reducer, 100);
   return (

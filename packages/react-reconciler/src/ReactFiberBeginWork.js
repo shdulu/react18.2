@@ -81,6 +81,23 @@ export function mountIndeterminateComponent(
   return workInProgress.child;
 }
 
+export function updateFunctionComponent(
+  current,
+  workInProgress,
+  Component,
+  nextProps
+) {
+  debugger
+  const nextChildren = renderWithHooks(
+    current,
+    workInProgress,
+    Component,
+    nextProps
+  );
+  reconcileChildren(current, workInProgress, nextChildren);
+  return workInProgress.child;
+}
+
 /**
  * 根据虚拟DOM构建新的fiber链表 child .sibling
  *
@@ -91,14 +108,23 @@ export function mountIndeterminateComponent(
  */
 export function beginWork(current, workInProgress) {
   // logger(" ".repeat(indent.number) + "beginWork", workInProgress);
-  indent.number += 2;
+  // indent.number += 2;
   switch (workInProgress.tag) {
     case HostRoot: // 根节点类型
       return updateHostRoot(current, workInProgress);
+    case FunctionComponent: {
+      const Component = workInProgress.type;
+      const nextProps = workInProgress.pendingProps;
+      return updateFunctionComponent(
+        current,
+        workInProgress,
+        Component,
+        nextProps
+      );
+    }
     case HostComponent: // 原生节点类型
       return updateHostComponent(current, workInProgress);
     case IndeterminateComponent:
-      // debugger
       return mountIndeterminateComponent(
         current,
         workInProgress,

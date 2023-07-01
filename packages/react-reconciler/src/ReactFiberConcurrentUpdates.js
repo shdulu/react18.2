@@ -16,6 +16,7 @@ function enqueueUpdate(fiber, queue, update) {
   concurrentQueue[concurrentQueuesIndex++] = update;
 }
 
+
 export function finishQueueingConcurrentUpdates() {
   const endIndex = concurrentQueuesIndex;
   concurrentQueuesIndex = 0;
