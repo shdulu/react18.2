@@ -1,10 +1,16 @@
 import logger, { indent } from "shared/logger";
-import { HostComponent, HostRoot, HostText } from "./ReactWorkTags";
+import {
+  HostComponent,
+  HostRoot,
+  HostText,
+  FunctionComponent,
+} from "./ReactWorkTags";
 import {
   createTextInstance,
   createInstance,
   appendInitialChild,
   finalizeInitialChildren,
+  prepareUpdate,
 } from "react-dom-bindings/src/client/ReactDOMHostConfig";
 import { NoFlags, Update } from "./ReactFiberFlags";
 
@@ -39,7 +45,7 @@ function appendAllChildren(parent, workInProgress) {
 
 function markUpdate(workInProgress) {
   // 给当前的fiber添加更新的副作用
-  workInProgress.flags != Update;
+  workInProgress.flags |= Update;
 }
 
 /**
@@ -53,13 +59,14 @@ function markUpdate(workInProgress) {
 function updateHostComponent(current, workInProgress, type, newProps) {
   const oldProps = current.memoizedProps; // 老的属性
   const instance = workInProgress.stateNode; // 老的dom节点
-  // 比较新老属性收集属性的差异
-  // const updatePayload = prepareUpdate(instance, type, oldProps, newProps);
+  // 比较新老属性收集属性的差异 - 返回差异属性的数组
+  const updatePayload = prepareUpdate(instance, type, oldProps, newProps);
+  console.log("updatePayload", updatePayload);
   // 让原生组件的新fiber更新队列等于
-  debugger
-  const updatePayload = ['children', 6];
   workInProgress.updateQueue = updatePayload;
   if (updatePayload) {
+    // 如果有更新队列给fiber打Update标记!!!
+    debugger
     markUpdate(workInProgress);
   }
 }
@@ -93,8 +100,12 @@ export function completeWork(current, workInProgress) {
         workInProgress.stateNode = instance;
         finalizeInitialChildren(instance, type, newProps);
       }
-
       bubbleProperties(workInProgress);
+      break;
+    case FunctionComponent:
+      debugger
+      bubbleProperties(workInProgress);
+      debugger
       break;
     case HostText:
       // 如果是文本节点 - 创建真实的文本节点
@@ -126,5 +137,6 @@ function bubbleProperties(completedWork) {
     subtreeFlags |= child.flags;
     child = child.sibling;
   }
+  // TODO- 这里和源码实现不一样注意
   completedWork.subtreeFlags = subtreeFlags; // 子节点副作用收集
 }

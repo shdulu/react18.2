@@ -87,7 +87,7 @@ export function updateFunctionComponent(
   Component,
   nextProps
 ) {
-  debugger
+  // debugger
   const nextChildren = renderWithHooks(
     current,
     workInProgress,

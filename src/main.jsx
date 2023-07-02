@@ -22,23 +22,28 @@ function reducer(state, action) {
 }
 
 function FunctionComponent() {
-  debugger;
+  // debugger;
   const [count, setCount] = React.useReducer(reducer, 0);
   const [count2, setCount2] = React.useReducer(reducer, 100);
+  let attrs = {
+    id: "btn1",
+  };
+  if (count === 6) {
+    delete attrs.id;
+    attrs.style = { color: "red" };
+  }
   return (
-    <h1 id="container">
-      hello
-      <span style={{ color: "red" }}>world</span>
-      <button
-        onClick={() => {
-          setCount({ type: "add", payload: 1 }); // update1.next => update2.next => update3.next => update1
-          setCount({ type: "add", payload: 2 }); // update2
-          setCount({ type: "add", payload: 3 }); // update3
-        }}
-      >
-        {count}
-      </button>
-    </h1>
+    <button
+      {...attrs}
+      onClick={() => {
+        debugger;
+        setCount({ type: "add", payload: 1 }); // update1.next => update2.next => update3.next => update1
+        setCount({ type: "add", payload: 2 }); // update2
+        setCount({ type: "add", payload: 3 }); // update3
+      }}
+    >
+      {count}
+    </button>
   );
 }
 let element = <FunctionComponent title="函数组件"></FunctionComponent>;

@@ -1,8 +1,9 @@
 import {
   appendChild,
   insertBefore,
+  commitUpdate
 } from "react-dom-bindings/src/client/ReactDOMHostConfig";
-import { MutationMask, Placement } from "./ReactFiberFlags";
+import { MutationMask, Placement, Update } from "./ReactFiberFlags";
 import {
   FunctionComponent,
   HostComponent,
@@ -85,10 +86,6 @@ function insertOrAppendPlacementNode(node, before, parent) {
  * @param {Fiber} fiber
  */
 function getHostSibling(fiber) {
-  // We're going to search forward into the tree until we find a sibling host
-  // node. Unfortunately, if multiple insertions are done in a row we have to
-  // search past them. This leads to exponential search for the next sibling.
-  // TODO: Find a more efficient way to do this.
   let node = fiber;
   siblings: while (true) {
     while (node.sibling === null) {
@@ -151,16 +148,51 @@ function commitPlacement(finishedWork) {
  * @param {*} root 根节点
  */
 export function commitMutationEffectsOnFiber(finishedWork, root) {
+  const current = finishedWork.alternate;
+  const flags = finishedWork.flags;
+
   switch (finishedWork.tag) {
     case FunctionComponent:
     case HostRoot:
-    case HostComponent:
-    case HostText:
+    case HostText: {
       // 先遍历它们的子节点，处理它们的子节点上的副作用
       recursivelyTraverseMutationEffects(root, finishedWork);
       // 在处理自己身上的副作用
       commitReconciliationEffects(finishedWork);
       break;
+    }
+    case HostComponent: {
+      // 先遍历它们的子节点，处理它们的子节点上的副作用
+      recursivelyTraverseMutationEffects(root, finishedWork);
+      // 在处理自己身上的副作用
+      commitReconciliationEffects(finishedWork);
+      // 处理DOM更新
+      debugger
+      if (flags & Update) {
+        // 获取真实DOM
+        const instance = finishedWork.stateNode;
+        if (instance !== null) {
+          // 更新真实DOM
+          const newProps = finishedWork.memoizedProps;
+          const oldProps = current !== null ? current.memoizedProps : newProps;
+          const type = finishedWork.type;
+          const updatePayload = finishedWork.updateQueue;
+          finishedWork.updateQueue = null;
+          if (updatePayload) {
+            // 更新队列里有值-提交更新
+            commitUpdate(
+              instance,
+              updatePayload,
+              type,
+              oldProps,
+              newProps,
+              finishedWork
+            );
+          }
+        }
+      }
+      break;
+    }
     default:
       break;
   }

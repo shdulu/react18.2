@@ -4,7 +4,7 @@ import { scheduleCallback } from "../../scheduler";
 import { createWorkInProgress } from "./ReactFiber";
 import { beginWork } from "./ReactFiberBeginWork";
 import { completeWork } from "./ReactFiberCompleteWork";
-import { NoFlags, MutationMask, Placement } from "./ReactFiberFlags";
+import { NoFlags, MutationMask, Placement, Update } from "./ReactFiberFlags";
 import { commitMutationEffectsOnFiber } from "./ReactFiberCommitWork";
 import { HostComponent, HostRoot, HostText } from "./ReactWorkTags";
 import { finishQueueingConcurrentUpdates } from "./ReactFiberConcurrentUpdates";
@@ -31,9 +31,6 @@ function ensureRootIsScheduled(root) {
   if (workInProgressRoot) return;
   workInProgressRoot = root;
   /**批量更新防止多次调用 end*/
-
-  // 告诉浏览器要执行 performConcurrentWorkOnRoot
-  console.log("ensureRootIsScheduled");
   scheduleCallback(performConcurrentWorkOnRoot.bind(null, root));
 }
 /**
@@ -61,6 +58,7 @@ function commitRoot(root) {
     (finishedWork.subtreeFlags & MutationMask) !== NoFlags;
   const rootHasEffect = (finishedWork.flags & MutationMask) !== NoFlags;
   // 如果自己有副作用或者子节点有副作用，就提交DOM操作
+  debugger
   if (subtreeHasEffects || rootHasEffect) {
     commitMutationEffectsOnFiber(finishedWork, root);
   }
