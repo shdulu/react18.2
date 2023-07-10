@@ -150,7 +150,7 @@ function commitPlacement(finishedWork) {
 export function commitMutationEffectsOnFiber(finishedWork, root) {
   const current = finishedWork.alternate;
   const flags = finishedWork.flags;
-
+  debugger
   switch (finishedWork.tag) {
     case FunctionComponent:
     case HostRoot:
@@ -167,7 +167,6 @@ export function commitMutationEffectsOnFiber(finishedWork, root) {
       // 在处理自己身上的副作用
       commitReconciliationEffects(finishedWork);
       // 处理DOM更新
-      debugger
       if (flags & Update) {
         // 获取真实DOM
         const instance = finishedWork.stateNode;
@@ -180,6 +179,7 @@ export function commitMutationEffectsOnFiber(finishedWork, root) {
           finishedWork.updateQueue = null;
           if (updatePayload) {
             // 更新队列里有值-提交更新
+            debugger
             commitUpdate(
               instance,
               updatePayload,

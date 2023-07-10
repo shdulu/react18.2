@@ -45,6 +45,7 @@ function performConcurrentWorkOnRoot(root) {
   // 开始进入提交阶段，就是执行副作用，修改真实DOM
   const finishedWork = root.current.alternate; // 新构建出来的fiber树
   root.finishedWork = finishedWork;
+  debugger
   commitRoot(root);
   /**调动更新完成 scheduleUpdateOnFiber-end*/
   workInProgressRoot = null;
@@ -52,13 +53,11 @@ function performConcurrentWorkOnRoot(root) {
 
 function commitRoot(root) {
   const { finishedWork } = root;
-  printFinishedWork(finishedWork);
   // 判断子树是否有副作用
   const subtreeHasEffects =
     (finishedWork.subtreeFlags & MutationMask) !== NoFlags;
   const rootHasEffect = (finishedWork.flags & MutationMask) !== NoFlags;
   // 如果自己有副作用或者子节点有副作用，就提交DOM操作
-  debugger
   if (subtreeHasEffects || rootHasEffect) {
     commitMutationEffectsOnFiber(finishedWork, root);
   }
@@ -123,41 +122,3 @@ function completeUnitOfWork(unitOfWork) {
   } while (completedWork !== null);
 }
 
-function printFinishedWork(fiber) {
-  let child = fiber.child;
-  while (child) {
-    printFinishedWork(child);
-    child = child.sibling;
-  }
-  if (fiber.flags !== 0) {
-    console.log(
-      getFlags(fiber.flags),
-      getTag(fiber.tag),
-      fiber.type,
-      fiber.memoizedProps
-    );
-  }
-}
-function getTag(tag) {
-  switch (tag) {
-    case HostComponent:
-      return "HostComponent";
-    case HostRoot:
-      return "HostRoot";
-    case HostText:
-      return "HostText";
-    default:
-      break;
-  }
-}
-function getFlags(flags) {
-  switch (flags) {
-    case Placement:
-      return "插入";
-    case Update:
-      return "更新";
-
-    default:
-      break;
-  }
-}

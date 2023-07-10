@@ -66,7 +66,6 @@ function updateHostComponent(current, workInProgress, type, newProps) {
   workInProgress.updateQueue = updatePayload;
   if (updatePayload) {
     // 如果有更新队列给fiber打Update标记!!!
-    debugger
     markUpdate(workInProgress);
   }
 }
@@ -103,9 +102,7 @@ export function completeWork(current, workInProgress) {
       bubbleProperties(workInProgress);
       break;
     case FunctionComponent:
-      debugger
       bubbleProperties(workInProgress);
-      debugger
       break;
     case HostText:
       // 如果是文本节点 - 创建真实的文本节点

@@ -17,3 +17,8 @@ export function useReducer(reducer, initialArg) {
   // 调用useReducer实际是执行
   return dispatcher.useReducer(reducer, initialArg);
 }
+
+export function useState(reducer, initialArg) {
+  const dispatcher = resolveDispatcher();
+  return dispatcher.useState(reducer, initialArg);
+}

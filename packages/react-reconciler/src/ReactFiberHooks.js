@@ -11,9 +11,11 @@ let currentHook = null;
 
 const HooksDispatcherOnMount = {
   useReducer: mountReducer,
+  useState: mountState,
 };
 const HooksDispatcherOnUpdate = {
   useReducer: updateReducer,
+  useState: updateState,
 };
 
 /**
@@ -42,6 +44,61 @@ function updateWorkInProgressHook() {
   return workInProgressHook;
 }
 
+/**
+ * mountState 针对state做了优化，如果新老state一样不需要更新
+ *
+ * @param {*} initialState
+ * @return {*}
+ */
+function mountState(initialState) {
+  const hook = mountWorkInProgressHook();
+  hook.memoizedState = initialState;
+  const queue = {
+    pending: null,
+    dispatch: null,
+    lastRenderedReducer: baseStateReducer, // 上一个reducer
+    lastRenderedState: initialState, // 上一个state
+  };
+  hook.queue = queue;
+  const dispatch = (queue.dispatch = dispatchSetstate.bind(
+    null,
+    currentlyRenderingFiber,
+    queue
+  ));
+  return [hook.memoizedState, dispatch];
+}
+
+// useState 其实就是一个内置了reducer的useReducer
+function baseStateReducer(state, action) {
+  return typeof action === "function" ? action(state) : action;
+}
+function updateState() {
+  return updateReducer(baseStateReducer);
+}
+
+function dispatchSetstate(fiber, queue, action) {
+  const update = {
+    action,
+    hasEagerState: false, // 是否有急切的更新
+    eagerState: null, // 急切的更新状态
+    next: null,
+  };
+  // 派发动作后，立刻用上一次的状态和上一次的reducer计算状态
+  const { lastRenderedReducer, lastRenderedState } = queue;
+  const eagerState = lastRenderedReducer(lastRenderedState, action);
+  update.hasEagerState = true;
+  update.eagerState = eagerState;
+  if (Object.is(eagerState, lastRenderedState)) {
+    return;
+  }
+  // 正常情况下会先调度更新，然后才会计算新的状态
+  // mountState -> 优化了这里先立刻计算了一次状态做一次对比,如果一样就不再调度更新
+
+  // 入队更新，并调度更新逻辑
+  const root = enqueueConcurrentHookUpdate(fiber, queue, update);
+  scheduleUpdateOnFiber(root);
+}
+
 function updateReducer(reducer, initialArg) {
   // 根据老的hook获取新的hook
   const hook = updateWorkInProgressHook();
@@ -58,8 +115,12 @@ function updateReducer(reducer, initialArg) {
     const firstUpdate = pendingQueue.next;
     let update = firstUpdate;
     do {
-      const action = update.action;
-      newState = reducer(newState, action);
+      if (update.hasEagerState) {
+        newState = update.eagerState;
+      } else {
+        const action = update.action;
+        newState = reducer(newState, action);
+      }
       update = update.next;
     } while (update !== null && update !== firstUpdate);
   }
@@ -99,7 +160,6 @@ function mountReducer(reducer, initialArg) {
  * @param {*} action 派发的动作
  */
 function dispatchReducerAction(fiber, queue, action) {
-  // debugger;
   // 更新会在每个hook里存放一个更新队列，更新队列是一个更新对象的循环链表
   const update = {
     action, // 更新动作 {type: 'add', payload: 1}
@@ -107,6 +167,7 @@ function dispatchReducerAction(fiber, queue, action) {
   };
   // 1. 把当前最新的更新对象添加到更新队列中，并且返回当前的根fiber节点,
   // 2.入队并发的hook更新
+  debugger;
   const root = enqueueConcurrentHookUpdate(fiber, queue, update);
   // 从根节点重新调度更新 - 初始挂载也是根节点开始调度更新
   scheduleUpdateOnFiber(root);
@@ -158,5 +219,6 @@ export function renderWithHooks(current, workInProgress, Component, props) {
   const children = Component(props);
   currentlyRenderingFiber = null;
   workInProgressHook = null;
+  currentHook = null;
   return children;
 }

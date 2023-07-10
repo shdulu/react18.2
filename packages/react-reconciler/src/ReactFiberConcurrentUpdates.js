@@ -21,7 +21,6 @@ export function finishQueueingConcurrentUpdates() {
   const endIndex = concurrentQueuesIndex;
   concurrentQueuesIndex = 0;
   let i = 0;
-  // debugger
   while (i < endIndex) {
     const fiber = concurrentQueue[i++];
     const queue = concurrentQueue[i++];
