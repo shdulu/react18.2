@@ -4,7 +4,7 @@ import {
   createFiberFromText,
   createWorkInProgress,
 } from "./ReactFiber";
-import { Placement } from "./ReactFiberFlags";
+import { ChildDeletion, Placement } from "./ReactFiberFlags";
 import isArray from "shared/isArray";
 /**
  *
@@ -20,6 +20,40 @@ function createChildReconciler(shouldTrackSideEffects) {
   }
 
   /**
+   *
+   *
+   * @param {*} returnFiber
+   * @param {*} childToDelete
+   */
+  function deleteChild(returnFiber, childToDelete) {
+    if (!shouldTrackSideEffects) return;
+    const deletions = returnFiber.deletions;
+    if (deletions === null) {
+      returnFiber.deletions = [childToDelete];
+      returnFiber.flags |= ChildDeletion; // 打上副作用标识 - 有子节点将要删除
+    } else {
+      returnFiber.deletions.push(childToDelete);
+    }
+  }
+
+  /**
+   * 删除从currentFirstChild之后所有的fiber节点
+   *
+   * @param {*} returnFiber
+   * @param {*} currentFirstChild
+   * @return {*}
+   */
+  function deleteRemainingChildren(returnFiber, currentFirstChild) {
+    if (!shouldTrackSideEffects) return;
+    let childToDelete = currentFirstChild;
+    while (childToDelete !== null) {
+      deleteChild(returnFiber, childToDelete);
+      childToDelete = childToDelete.sibling;
+    }
+    return null;
+  }
+
+  /**
    * 协调单元素
    *
    * @param {*} returnFiber 根fiber div#root 对应的fiber
@@ -29,6 +63,7 @@ function createChildReconciler(shouldTrackSideEffects) {
    */
   function reconcileSingleElement(returnFiber, currentFirstChild, element) {
     // 新的虚拟dom的key，也就是唯一标识
+    debugger;
     const key = element.key;
     // 老的FunctionComponent 对应的fiber
     let child = currentFirstChild;
@@ -37,11 +72,18 @@ function createChildReconciler(shouldTrackSideEffects) {
       if (child.key === key) {
         // 2. 判断老fiber对应得类型和新虚拟dom元素对用的类型是否相同
         if (child.type === element.type) {
+          deleteRemainingChildren(returnFiber, child.sibling);
           // 如果key一样，类型也一样，则认为此节点可以复用, 删除其他子节点,复用此节点
           const existing = useFiber(child, element.props);
           existing.return = returnFiber;
           return existing;
+        } else {
+          // 如果找到了key一样类型不一样，不能复用此老fiber，把剩下的全部删除
+          deleteRemainingChildren(returnFiber, child);
         }
+      } else {
+        // key 不同删除老的fiber
+        deleteChild(returnFiber, child);
       }
       child = child.sibling;
     }

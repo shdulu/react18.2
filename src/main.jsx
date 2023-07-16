@@ -7,24 +7,32 @@ function reducer(state, action) {
 }
 
 function FunctionComponent() {
-  const [count, setCount] = useReducer(reducer, 0);
   const [number, setNumber] = useState(0);
+  const [count, setCount] = useReducer(reducer, 0);
   // const [count2, setCount2] = React.useReducer(reducer, 100);
-  return (
+  return number === 0 ? (
     <button
+      key="title"
+      id="title1"
       onClick={() => {
-        debugger;
         // setCount({ type: "add" }); // update1.next => update2.next => update3.next => update1
-        setNumber(number);
         setNumber(number + 1);
-        setNumber(number + 2);
         // setCount({ type: "add", payload: 2 }); // update2
         // setCount({ type: "add", payload: 3 }); // update3
       }}
     >
-      {/* {count} */}
-      {number}
+      title1
     </button>
+  ) : (
+    <div
+      key="title"
+      id="title1"
+      onClick={() => {
+        setNumber(number + 1);
+      }}
+    >
+      title2
+    </div>
   );
 }
 let element = <FunctionComponent title="函数组件"></FunctionComponent>;

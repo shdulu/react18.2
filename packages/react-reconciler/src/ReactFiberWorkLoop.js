@@ -51,6 +51,11 @@ function performConcurrentWorkOnRoot(root) {
   workInProgressRoot = null;
 }
 
+/**
+ * completeWork 完成进入到 commit阶段，会有dom节点的更新
+ *
+ * @param {*} root
+ */
 function commitRoot(root) {
   const { finishedWork } = root;
   // 判断子树是否有副作用

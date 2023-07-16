@@ -38,13 +38,15 @@ function hasValidRef(config) {
   return config.ref !== undefined;
 }
 
-export function jsxDEV(type, config) {
+export function jsxDEV(type, config, maybekey) {
   let propName; // 属性名
   // Reserved names are extracted
   const props = {};
   let key = null; // 每个虚拟dom可以有一个可选的key属性，用来区分同一个父节点下的不同子节点
   let ref = null; // 引入，后面可以通过这实现获取真实dom的需求
-
+  if (typeof maybekey !== "undefined") {
+    key = maybekey;
+  }
   if (hasValidKey(config)) {
     key = config.key;
   }

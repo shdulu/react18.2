@@ -40,7 +40,7 @@ function FiberNode(tag, pendingProps, key) {
   this.subtreeFlags = NoFlags; // 子节点副作用标识-性能优化
   // React 执行两个阶段 1. render计算副作用 2. commit提交副作用
 
-  //   this.deletions = null;
+  this.deletions = null; // 存放将要删除的子fiber
   //   this.lanes = NoLanes;
   //   this.childLanes = NoLanes;
 
@@ -68,6 +68,9 @@ export function createHostRootFiber() {
 
 /**
  * 基于老的fiber 和新的属性创建新的fiber
+ * 1. current 和workInProgress 双缓存树轮替
+ * 2. current指向当前正在渲染的fiber树、workInProgress指向正在构建的fiber树
+ * 3. 基于老的fiber树-current和新的属性，构建新的fiber树workInProgress
  *
  * @export
  * @param {*} current 老的fiber
@@ -91,13 +94,13 @@ export function createWorkInProgress(current, pendingProps) {
     workInProgress.subtreeFlags = NoFlags;
   }
 
-  workInProgress.flags = current.flags
+  workInProgress.flags = current.flags;
 
   workInProgress.child = current.child;
   workInProgress.memoizedProps = current.memoizedProps;
   workInProgress.memoizedState = current.memoizedState;
   workInProgress.updateQueue = current.updateQueue;
-  
+
   workInProgress.sibling = current.sibling;
   workInProgress.index = current.index;
   return workInProgress;
