@@ -45,7 +45,6 @@ function performConcurrentWorkOnRoot(root) {
   // 开始进入提交阶段，就是执行副作用，修改真实DOM
   const finishedWork = root.current.alternate; // 新构建出来的fiber树
   root.finishedWork = finishedWork;
-  debugger
   commitRoot(root);
   /**调动更新完成 scheduleUpdateOnFiber-end*/
   workInProgressRoot = null;

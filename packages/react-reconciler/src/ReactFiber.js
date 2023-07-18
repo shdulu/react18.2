@@ -94,13 +94,11 @@ export function createWorkInProgress(current, pendingProps) {
     workInProgress.subtreeFlags = NoFlags;
   }
 
-  workInProgress.flags = current.flags;
-
+  // workInProgress.flags = current.flags;
   workInProgress.child = current.child;
   workInProgress.memoizedProps = current.memoizedProps;
   workInProgress.memoizedState = current.memoizedState;
   workInProgress.updateQueue = current.updateQueue;
-
   workInProgress.sibling = current.sibling;
   workInProgress.index = current.index;
   return workInProgress;

@@ -180,5 +180,25 @@ react 并没有使用 `requestIdleCallback` API, 因为这个时间完全不可�
 - 限定仅在表尾进行插入和删除操作的线性表，这一端被称为栈顶，相对地，把另一端称为栈底
 - 向一个栈插入新元素又称作进栈、入栈或压栈，它是把新元素放到栈顶元素的上面，使之成为新的栈顶元素
 - 从一个栈删除元素又称作出栈或退栈，它是把栈顶元素删除掉，使其相邻的元素成为新的栈顶元素
-![广度优先DFS](./images/stack_1664077689567.png "广度优先DFS")
+  ![广度优先DFS](./images/stack_1664077689567.png "广度优先DFS")
+
 #### 4.创建 ReactDOMRoot
+
+#### 对节点 DIFF
+
+- DOM DIFF 的三个规则
+  - 只对同级元素进行比较，不同层级不对比
+  - 不同的类型对应不同的元素
+  - 可以通过 key 来标识同一个节点
+- 第 1 轮遍历
+  - 如果 key 不同则直接结束本轮循环
+  - newChildren 或 oldFiber 遍历完，结束本轮循环
+  - key 相同而 type 不同，标记老的 oldFiber 为删除，继续循环
+  - key 相同而 type 也相同，则可以复用老节 oldFiber 节点，继续循环
+- 第 2 轮遍历
+  - newChildren 遍历完而 oldFiber 还有，遍历剩下所有的 oldFiber 标记为删除，DIFF 结束
+  - oldFiber 遍历完了，而 newChildren 还有，将剩下的 newChildren 标记为插入，DIFF 结束
+  - newChildren 和 oldFiber 都同时遍历完成，diff 结束
+  - newChildren 和 oldFiber 都没有完成，则进行节点移动的逻辑
+- 第 3 轮遍历
+  - 处理节点移动的情况

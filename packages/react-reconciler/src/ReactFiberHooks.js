@@ -167,7 +167,7 @@ function dispatchReducerAction(fiber, queue, action) {
   };
   // 1. 把当前最新的更新对象添加到更新队列中，并且返回当前的根fiber节点,
   // 2.入队并发的hook更新
-  debugger;
+
   const root = enqueueConcurrentHookUpdate(fiber, queue, update);
   // 从根节点重新调度更新 - 初始挂载也是根节点开始调度更新
   scheduleUpdateOnFiber(root);

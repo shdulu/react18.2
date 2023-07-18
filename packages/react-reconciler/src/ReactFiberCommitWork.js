@@ -126,9 +126,10 @@ function getHostSibling(fiber) {
       } else {
         node = node.child;
       }
-      if (!(node.flags & Placement)) {
-        return node.stateNode;
-      }
+    }
+    // 检查此原生节点是否稳定可以放置
+    if (!(node.flags & Placement)) {
+      return node.stateNode;
     }
   }
 }
@@ -169,7 +170,6 @@ function commitPlacement(finishedWork) {
 export function commitMutationEffectsOnFiber(finishedWork, root) {
   const current = finishedWork.alternate;
   const flags = finishedWork.flags;
-  debugger;
   switch (finishedWork.tag) {
     case FunctionComponent:
     case HostRoot:
@@ -198,7 +198,6 @@ export function commitMutationEffectsOnFiber(finishedWork, root) {
           finishedWork.updateQueue = null;
           if (updatePayload) {
             // 更新队列里有值-提交更新
-            debugger;
             commitUpdate(
               instance,
               updatePayload,
