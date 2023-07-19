@@ -22,3 +22,16 @@ export function useState(reducer, initialArg) {
   const dispatcher = resolveDispatcher();
   return dispatcher.useState(reducer, initialArg);
 }
+
+/**
+ * 1. 执行组件的渲染，渲染的过程中会收集副作用effect
+ * 2. 在提交阶段之后会开启一个新的 **宏任务** 执行create，如果create之前有销毁函数则先执行销毁函数
+ * 3. 应用场景: DOM操作、添加定时器、调用接口、监控日志
+ *
+ * @export
+ * @param {*} create
+ */
+export function useEffect(create) {
+  const dispatcher = resolveDispatcher();
+  return dispatcher.useEffect(create);
+}

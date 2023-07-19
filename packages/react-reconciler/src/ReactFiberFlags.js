@@ -10,12 +10,15 @@ export const Update = /*      4   更新      */ 0b0000000000000000000000000100;
 
 /* Skipped value:                                 0b0000000000000000000000001000; */
 
-export const ChildDeletion = /* 子节点删除   */ 0b0000000000000000000000010000;
+export const ChildDeletion = /* 16 子节点删除 */ 0b0000000000000000000000010000;
 export const ContentReset = /*                 */ 0b0000000000000000000000100000;
 export const Callback = /*                     */ 0b0000000000000000000001000000;
 /* Used by DidCapture:                            0b0000000000000000000010000000; */
 
 export const Ref = /*                          */ 0b0000000000000000001000000000;
+
+// 如果函数组件的里面使用了useEffect，函数组件fiber会有此标识flags
+export const Passive = /* 1024                 */ 0b0000000000000000100000000000;
 
 export const Visibility = /*                   */ 0b0000000000000010000000000000;
 

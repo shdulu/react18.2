@@ -231,6 +231,7 @@ function createChildReconciler(shouldTrackSideEffects) {
       }
       if (shouldTrackSideEffects) {
         if (oldFiber && newFiber.alternate === null) {
+          // key相同type 不同会走到这里
           // 没有复用老fiber，创建出来的新fiber.需要删除老fiber，打上需要删除的标识，提交阶段会执行删除DOM的操作
           deleteChild(returnFiber, oldFiber);
         }

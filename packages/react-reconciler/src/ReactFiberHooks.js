@@ -1,7 +1,11 @@
-import { dispatchEvent } from "react-dom-bindings/src/events/ReactDOMEventLister";
 import ReactSharedInternals from "shared/ReactSharedInternals";
 import { enqueueConcurrentHookUpdate } from "./ReactFiberConcurrentUpdates";
 import { scheduleUpdateOnFiber } from "./ReactFiberWorkLoop";
+import { Passive as PassiveEffect } from "./ReactFiberFlags";
+import {
+  HasEffect as HookHasEffect,
+  Passive as HookPassive,
+} from "./ReactHookEffectTags";
 
 const { ReactCurrentDispatcher } = ReactSharedInternals;
 let currentlyRenderingFiber = null; // 当前正在渲染中的fiber
@@ -12,10 +16,12 @@ let currentHook = null;
 const HooksDispatcherOnMount = {
   useReducer: mountReducer,
   useState: mountState,
+  useEffect: mountEffect,
 };
 const HooksDispatcherOnUpdate = {
   useReducer: updateReducer,
   useState: updateState,
+  useEffect: updateEffect,
 };
 
 /**
@@ -42,6 +48,80 @@ function updateWorkInProgressHook() {
     workInProgressHook = workInProgressHook.next = newHook;
   }
   return workInProgressHook;
+}
+
+/**
+ *
+ *
+ * @param {*} create
+ * @param {*} deps
+ */
+function mountEffect(create, deps) {
+  return mountEffectImpl(PassiveEffect, HookPassive, create, deps);
+}
+/**
+ *
+ *
+ * @param {*} fiberFlags
+ * @param {*} hookFlags
+ * @param {*} create
+ * @param {*} deps
+ */
+function mountEffectImpl(fiberFlags, hookFlags, create, deps) {
+  const hook = mountWorkInProgressHook();
+  const nextDeps = deps === undefined ? null : deps;
+  // 给当前的函数组件fiber添加 1024-flags
+  currentlyRenderingFiber.flags |= fiberFlags;
+  // memoizedState 指向hook单向链表的头部
+  hook.memoizedState = pushEffect(
+    HookHasEffect | hookFlags,
+    create,
+    undefined,
+    nextDeps
+  );
+}
+
+/**
+ * 构建 effect 循环链表
+ *
+ * @param {*} tag effect 的标签
+ * @param {*} create 创建方法
+ * @param {*} destory 销毁方法
+ * @param {*} deps 依赖数组
+ */
+function pushEffect(tag, create, destory, deps) {
+  const effect = {
+    tag,
+    create,
+    destory,
+    deps,
+    next: null,
+  };
+  let componentUpdateQueue = currentlyRenderingFiber.updateQueue;
+  if (componentUpdateQueue === null) {
+    // 更新队列为空 - 创建新的更新队列
+    componentUpdateQueue = createFunctionComponentUpdateQueue();
+    currentlyRenderingFiber.updateQueue = componentUpdateQueue;
+    // 把effect对象 构成单向循环链表
+    componentUpdateQueue.lastEffect = effect.next = effect;
+  } else {
+    const lastEffect = componentUpdateQueue.lastEffect;
+    if (lastEffect === null) {
+      componentUpdateQueue.lastEffect = effect.next = effect;
+    } else {
+      // 已存在effect循环链表 - 把effect放到链表的尾
+      const firstEffect = lastEffect.next;
+      lastEffect.next = effect;
+      effect.next = firstEffect;
+      componentUpdateQueue.lastEffect = effect;
+    }
+  }
+  return effect;
+}
+function createFunctionComponentUpdateQueue() {
+  return {
+    lastEffect: null,
+  };
 }
 
 /**

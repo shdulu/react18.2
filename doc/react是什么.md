@@ -202,3 +202,10 @@ react 并没有使用 `requestIdleCallback` API, 因为这个时间完全不可�
   - newChildren 和 oldFiber 都没有完成，则进行节点移动的逻辑
 - 第 3 轮遍历
   - 处理节点移动的情况
+
+#### useEffect
+
+- 在函数组件主体内（这里指在 React 渲染阶段）改变 DOM、添加订阅、设置定时器、记录日志以及执行其他包含副作用的操作都是不被允许的，因为这可能会产生莫名其妙的 bug 并破坏 UI 的一致性
+- 使用 useEffect 完成副作用操作。赋值给 useEffect 的函数会在组件渲染到屏幕之后执行。你可以把 effect 看作从 React 的纯函数式世界通往命令式世界的逃生通道
+- useEffect 就是一个 Effect Hook，给函数组件增加了操作副作用的能力。它跟 class 组件中的 componentDidMount、componentDidUpdate 和 componentWillUnmount 具有相同的用途，只不过被合并成了一个 API
+- 该 Hook 接收一个包含命令式、且可能有副作用代码的函数
