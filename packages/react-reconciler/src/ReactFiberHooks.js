@@ -81,6 +81,57 @@ function mountEffectImpl(fiberFlags, hookFlags, create, deps) {
   );
 }
 
+//
+function updateEffect(create, deps) {
+  return updateEffectImpl(PassiveEffect, HookPassive, create, deps);
+}
+function updateEffectImpl(fiberFlags, hookFlags, create, deps) {
+  const hook = updateWorkInProgressHook();
+  const nextDeps = deps === undefined ? null : deps;
+  let destory;
+  if (currentHook !== null) {
+    const prevEffect = currentHook.memoizedState;
+    destory = prevEffect.destory;
+    if (nextDeps !== null) {
+      const prevDeps = prevEffect.deps;
+      // 对比新老依赖项 deps
+      if (areHookInputEqual(nextDeps, prevDeps)) {
+        // 不管要不要执行，都需要把新的effect组成完整的循环链表放到fiber.updateQueue
+        hook.memoizedState = pushEffect(hookFlags, create, destory, nextDeps);
+        return;
+      }
+    }
+  }
+  // 如果要执行要修改fiber的flags
+  currentlyRenderingFiber.flags |= fiberFlags;
+  // 如果要执行的话添加 HookHasEffect flags
+  hook.memoizedState = pushEffect(
+    HookHasEffect | hookFlags,
+    create,
+    destory,
+    nextDeps
+  );
+}
+
+/**
+ * 对比新老数组是否一致
+ *
+ * @param {*} nextDeps
+ * @param {*} prevDeps
+ */
+function areHookInputEqual(nextDeps, prevDeps) {
+  if (prevDeps === null) {
+    return null;
+  }
+  for (let i = 0; i < prevDeps.length && i < nextDeps.length; i++) {
+    if (Object.is(nextDeps[i], prevDeps[i])) {
+      continue;
+    }
+    return false;
+  }
+  return true;
+}
+
 /**
  * 构建 effect 循环链表
  *
@@ -286,6 +337,7 @@ function mountWorkInProgressHook() {
  */
 export function renderWithHooks(current, workInProgress, Component, props) {
   currentlyRenderingFiber = workInProgress; // 当前正在执行的fiber
+  workInProgress.updateQueue = null;
   // React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED
   if (current !== null && current.memoizedState !== null) {
     // 如果有老的fiber，并且有老的hook链表 - 更新

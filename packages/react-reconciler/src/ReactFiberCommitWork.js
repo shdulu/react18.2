@@ -4,7 +4,11 @@ import {
   commitUpdate,
   removeChild,
 } from "react-dom-bindings/src/client/ReactDOMHostConfig";
-import { MutationMask, Placement, Update } from "./ReactFiberFlags";
+import { MutationMask, Passive, Placement, Update } from "./ReactFiberFlags";
+import {
+  HasEffect as HookHasEffect,
+  Passive as HookPassive,
+} from "./ReactHookEffectTags";
 import {
   FunctionComponent,
   HostComponent,
@@ -293,5 +297,133 @@ function recursivelyTraverseDeletionEffects(
   while (child !== null) {
     commitDeletionEffectsOnFiber(finishedRoot, nearestMountedAncestor, child);
     child = child.sibling;
+  }
+}
+
+// useEffect 卸载
+export function commitPassiveUnmountEffects(finishedWork) {
+  commitPassiveUnmountOnFiber(finishedWork);
+}
+function commitPassiveUnmountOnFiber(finishedWork) {
+  const flags = finishedWork.flags;
+  switch (finishedWork.tag) {
+    case HostRoot: {
+      recursivelyTraversePassiveUnmountEffects(finishedWork);
+      break;
+    }
+    case FunctionComponent: {
+      recursivelyTraversePassiveUnmountEffects(finishedWork);
+      if (flags & Passive) {
+        commitHookPassiveUnmountEffects(
+          finishedWork,
+          HookHasEffect | HookPassive // 1 | 8
+        );
+      }
+      break;
+    }
+    default:
+      break;
+  }
+}
+// 深度优先递归
+function recursivelyTraversePassiveUnmountEffects(parentFiber) {
+  if (parentFiber.subtreeFlags & Passive) {
+    let child = parentFiber.child;
+    while (child !== null) {
+      commitPassiveUnmountOnFiber(child);
+      child = child.sibling;
+    }
+  }
+}
+function commitHookPassiveUnmountEffects(finishedWork, hookFlags) {
+  commitHookEffectListUnmount(hookFlags, finishedWork);
+}
+
+function commitHookEffectListUnmount(flags, finishedWork) {
+  const updateQueue = finishedWork.updateQueue;
+  const lastEffect = updateQueue !== null ? updateQueue.lastEffect : null;
+  if (lastEffect !== null) {
+    const firstEffect = lastEffect.next;
+    let effect = firstEffect;
+    do {
+      // 如果此effect类型和传入的相同，都是9 HookHasEffect | PassiveEffect
+      if ((effect.tag & flags) === flags) {
+        const destory = effect.destory;
+        if (destory !== undefined) {
+          // unmount 阶段如果存在destory那么就执行
+          destory();
+        }
+      }
+      effect = effect.next;
+    } while (effect !== firstEffect);
+  }
+}
+
+/**
+ *
+ *
+ * @export
+ * @param {*} root 根节点
+ * @param {*} finishedWork 根fiber
+ */
+export function commitPassiveMountEffects(root, finishedWork) {
+  commitPassiveMountOnFiber(root, finishedWork);
+}
+
+function commitPassiveMountOnFiber(finishedRoot, finishedWork) {
+  const flags = finishedWork.flags;
+  switch (finishedWork.tag) {
+    case HostRoot: {
+      recursivelyTraversePassiveMountEffects(finishedRoot, finishedWork);
+      break;
+    }
+    case FunctionComponent: {
+      recursivelyTraversePassiveMountEffects(finishedRoot, finishedWork);
+      if (flags & Passive) {
+        commitHookPassiveMountEffects(
+          finishedWork,
+          HookHasEffect | HookPassive // 1 | 8
+        );
+      }
+      break;
+    }
+    default:
+      break;
+  }
+}
+/**
+ * 深度优先的递归遍历
+ *
+ * @param {*} root
+ * @param {*} parentFiber
+ */
+function recursivelyTraversePassiveMountEffects(root, parentFiber) {
+  if (parentFiber.subtreeFlags & Passive) {
+    let child = parentFiber.child;
+    while (child !== null) {
+      commitPassiveMountOnFiber(root, child);
+      child = child.sibling;
+    }
+  }
+}
+function commitHookPassiveMountEffects(finishedWork, hookFlags) {
+  commitHookEffectListMount(hookFlags, finishedWork);
+}
+
+function commitHookEffectListMount(flags, finishedWork) {
+  const updateQueue = finishedWork.updateQueue;
+  const lastEffect = updateQueue !== null ? updateQueue.lastEffect : null;
+  if (lastEffect !== null) {
+    const firstEffect = lastEffect.next;
+    let effect = firstEffect;
+    do {
+      // 如果此effect类型和传入的相同，都是9 HookHasEffect | PassiveEffect
+      if ((effect.tag & flags) === flags) {
+        // mount阶段 - 执行 create 返回 destory 存在effect上在 unmount阶段执行destory
+        const create = effect.create;
+        effect.destory = create();
+      }
+      effect = effect.next;
+    } while (effect !== firstEffect);
   }
 }
