@@ -9,19 +9,19 @@ function FunctionComponent() {
     return () => {
       console.log("destroy useEffect1");
     };
-  });
+  }, [1]);
   useEffect(() => {
     console.log("useEffect2");
     return () => {
       console.log("destroy useEffect2");
     };
-  });
+  }, [2]);
   useEffect(() => {
     console.log("useEffect3");
     return () => {
       console.log("destroy useEffect3");
     };
-  });
+  }, [3]);
   return <button onClick={() => setNumber(number + 1)}>{number}</button>;
 }
 let element = <FunctionComponent title="函数组件"></FunctionComponent>;

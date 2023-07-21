@@ -227,6 +227,7 @@ function dispatchSetstate(fiber, queue, action) {
 
   // 入队更新，并调度更新逻辑
   const root = enqueueConcurrentHookUpdate(fiber, queue, update);
+  debugger
   scheduleUpdateOnFiber(root);
 }
 
@@ -336,6 +337,7 @@ function mountWorkInProgressHook() {
  * @returns 虚拟DOM或者说React元素
  */
 export function renderWithHooks(current, workInProgress, Component, props) {
+  debugger
   currentlyRenderingFiber = workInProgress; // 当前正在执行的fiber
   workInProgress.updateQueue = null;
   // React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED

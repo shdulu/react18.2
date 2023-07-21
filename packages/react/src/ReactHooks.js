@@ -30,8 +30,9 @@ export function useState(reducer, initialArg) {
  *
  * @export
  * @param {*} create
+ * @param {*} deps
  */
-export function useEffect(create) {
+export function useEffect(create, deps) {
   const dispatcher = resolveDispatcher();
-  return dispatcher.useEffect(create);
+  return dispatcher.useEffect(create, deps);
 }

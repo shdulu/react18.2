@@ -18,7 +18,7 @@ export const Callback = /*                     */ 0b0000000000000000000001000000
 export const Ref = /*                          */ 0b0000000000000000001000000000;
 
 // 如果函数组件的里面使用了useEffect，函数组件fiber会有此标识flags
-export const Passive = /* 1024                 */ 0b0000000000000000100000000000;
+export const Passive = /* 2048                 */ 0b0000000000000000100000000000;
 
 export const Visibility = /*                   */ 0b0000000000000010000000000000;
 
