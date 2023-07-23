@@ -33,7 +33,7 @@ export function listenToAllSupportedEvents(rootContainerElement) {
     rootContainerElement[listeningMarker] = true;
     // 遍历所有原生的事件[click,...]，进行监听
     allNativeEvents.forEach((domEventName) => {
-      console.log("domEventName:", domEventName);
+      // console.log("domEventName:", domEventName);
       // 监听原生事件
       listenToNativeEvent(domEventName, true, rootContainerElement);
       listenToNativeEvent(domEventName, false, rootContainerElement);

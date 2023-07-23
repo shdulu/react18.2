@@ -15,13 +15,14 @@ import {
   commitMutationEffectsOnFiber,
   commitPassiveUnmountEffects,
   commitPassiveMountEffects,
+  commitLayoutEffects,
 } from "./ReactFiberCommitWork";
 import { HostComponent, HostRoot, HostText } from "./ReactWorkTags";
 import { finishQueueingConcurrentUpdates } from "./ReactFiberConcurrentUpdates";
 
 let workInProgress = null; // 正在构建中的fiber 树
 let workInProgressRoot = null; // 当前正在调度的根节点
-let rootDoesHavePassiveEffect = false; // 此根节点上有没有useEffect类似的副作用
+let rootDoesHavePassiveEffects = false; // 此根节点上有没有useEffect类似的副作用
 let rootWithPendingPassiveEffects = null; // 具有useEffect 副作用的根节点 FiberRootNode
 
 // FiberRootNode.current 当前页面中的fiber 树
@@ -63,6 +64,7 @@ function performConcurrentWorkOnRoot(root) {
 }
 
 function flushPassiveEffect() {
+  console.log("下一个宏任务中 flushPassiveEffect ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
   if (rootWithPendingPassiveEffects !== null) {
     const root = rootWithPendingPassiveEffects;
     // 执行卸载副作用 destory
@@ -79,28 +81,34 @@ function flushPassiveEffect() {
  */
 function commitRoot(root) {
   const { finishedWork } = root;
-  // 判断
+  // If there are pending passive effects, schedule a callback to process them.
+  // Do this as early as possible, so it is queued before anything else that
+  // might get scheduled in the commit phase. (See #16714.)
   if (
     (finishedWork.subtreeFlags & Passive) !== NoFlags ||
     (finishedWork.flags & Passive) !== NoFlags
   ) {
-    if (!rootDoesHavePassiveEffect) {
-      rootDoesHavePassiveEffect = true;
+    if (!rootDoesHavePassiveEffects) {
+      rootDoesHavePassiveEffects = true;
       // 有空闲时间 - 开启一个宏任务
       scheduleCallback(flushPassiveEffect);
     }
   }
-  console.log("commit 阶段~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+  console.log("开始 commit ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
   // 判断子树是否有副作用
   const subtreeHasEffects =
     (finishedWork.subtreeFlags & MutationMask) !== NoFlags;
   const rootHasEffect = (finishedWork.flags & MutationMask) !== NoFlags;
   // 如果自己有副作用或者子节点有副作用，就提交DOM操作
   if (subtreeHasEffects || rootHasEffect) {
-    // 当dom执行变更之后
+    // 当DOM执行变更之后
+    console.log("DOM 执行变更 commitMutationEffectsOnFiber ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     commitMutationEffectsOnFiber(finishedWork, root);
-    if (rootDoesHavePassiveEffect) {
-      rootDoesHavePassiveEffect = false;
+    // 执行 useLayoutEffect -> DOM 变更之后UI渲染之前执行
+    console.log("DOM 执行变更后 commitLayoutEffects ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    commitLayoutEffects(finishedWork, root)
+    if (rootDoesHavePassiveEffects) {
+      rootDoesHavePassiveEffects = false;
       rootWithPendingPassiveEffects = root;
     }
   }

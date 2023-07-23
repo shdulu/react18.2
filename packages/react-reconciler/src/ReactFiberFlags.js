@@ -30,3 +30,5 @@ export const MutationMask =
   Ref |
   Hydrating |
   Visibility;
+
+  export const LayoutMask = Update | Callback | Ref | Visibility;

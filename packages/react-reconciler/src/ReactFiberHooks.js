@@ -1,10 +1,14 @@
 import ReactSharedInternals from "shared/ReactSharedInternals";
 import { enqueueConcurrentHookUpdate } from "./ReactFiberConcurrentUpdates";
 import { scheduleUpdateOnFiber } from "./ReactFiberWorkLoop";
-import { Passive as PassiveEffect } from "./ReactFiberFlags";
+import {
+  Passive as PassiveEffect,
+  Update as UpdateEffect,
+} from "./ReactFiberFlags";
 import {
   HasEffect as HookHasEffect,
   Passive as HookPassive,
+  Layout as HookLayout,
 } from "./ReactHookEffectTags";
 
 const { ReactCurrentDispatcher } = ReactSharedInternals;
@@ -17,12 +21,21 @@ const HooksDispatcherOnMount = {
   useReducer: mountReducer,
   useState: mountState,
   useEffect: mountEffect,
+  useLayoutEffect: mountLayoutEffect,
 };
 const HooksDispatcherOnUpdate = {
   useReducer: updateReducer,
   useState: updateState,
   useEffect: updateEffect,
+  useLayoutEffect: updateLayoutEffect,
 };
+
+function mountLayoutEffect(create, deps) {
+  return mountEffectImpl(UpdateEffect, HookLayout, create, deps);
+}
+function updateLayoutEffect(create, deps) {
+  return updateEffectImpl(UpdateEffect, HookLayout, create, deps);
+}
 
 /**
  * 构建新的hooks
@@ -227,7 +240,7 @@ function dispatchSetstate(fiber, queue, action) {
 
   // 入队更新，并调度更新逻辑
   const root = enqueueConcurrentHookUpdate(fiber, queue, update);
-  debugger
+  debugger;
   scheduleUpdateOnFiber(root);
 }
 
@@ -337,7 +350,7 @@ function mountWorkInProgressHook() {
  * @returns 虚拟DOM或者说React元素
  */
 export function renderWithHooks(current, workInProgress, Component, props) {
-  debugger
+  debugger;
   currentlyRenderingFiber = workInProgress; // 当前正在执行的fiber
   workInProgress.updateQueue = null;
   // React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED
