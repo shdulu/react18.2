@@ -14,7 +14,7 @@
  * @param {*} heap 最小堆
  * @param {*} node 节点
  */
-function push(heap, node) {
+export function push(heap, node) {
   // 获取元素的数量
   const index = heap.length;
   // 先把添加的元素放在数组的尾部
@@ -27,14 +27,27 @@ function push(heap, node) {
  *
  * @param {*} heap
  */
-function peek(heap) {}
+export function peek(heap) {
+  return heap.length === 0 ? null : heap[0];
+}
 
 /**
  * 弹出最小堆的堆顶元素
  *
  * @param {*} heap
  */
-function pop(heap) {}
+export function pop(heap) {
+  if (heap.length === 0) {
+    return null;
+  }
+  const first = heap[0];
+  const last = heap.pop();
+  if (last !== first) {
+    heap[0] = last;
+    siftDown(heap, last, 0);
+  }
+  return first;
+}
 
 /**
  * 向上调整某个节点使其位于正确的位置
@@ -44,7 +57,26 @@ function pop(heap) {}
  * @param {*} i 节点所在的索引
  */
 function siftUp(heap, node, i) {
-    
+  let index = i;
+  while (index > 0) {
+    // 获取父节点的索引，子节点的索引减1,左移1位
+    const parentIndex = (index - 1) >>> 1; // 或者(index-1)/2取整
+    const parent = heap[parentIndex];
+    if (compare(parent, node) > 0) {
+      // 如果父节点存在且父节点比子节点大，交换位置
+      heap[parentIndex] = node;
+      heap[index] = parent;
+      index = parentIndex;
+    } else {
+      // 如果子节点比父节点大
+      return;
+    }
+  }
+}
+
+function compare(a, b) {
+  const diff = a.sortIndex - b.sortIndex;
+  return diff !== 0 ? diff : a.id - b.id;
 }
 
 /**
@@ -54,10 +86,33 @@ function siftUp(heap, node, i) {
  * @param {*} node 节点
  * @param {*} i 节点所在的索引
  */
-function siftDown(heap, node, i) {}
-
-let heap = [];
-
-push(heap, { sortIndex: 1 });
-push(heap, { sortIndex: 2 });
-push(heap, { sortIndex: 3 });
+function siftDown(heap, node, i) {
+  let index = i;
+  const length = heap.length;
+  const halfLength = length >>> 1;
+  while (index < halfLength) {
+    const leftIndex = (index + 1) * 2 - 1;
+    const left = heap[leftIndex];
+    const rightIndex = leftIndex + 1;
+    const right = heap[rightIndex];
+    // 如果左子节点存在，并且左子节点比父节点要小
+    if (compare(left, node) < 0) {
+      // 如果右节点存在，且右节点比左节点小
+      if (rightIndex < length && compare(right, left) < 0) {
+        heap[index] = right;
+        heap[rightIndex] = node;
+        index = rightIndex;
+      } else {
+        heap[index] = left;
+        heap[leftIndex] = node;
+        index = leftIndex;
+      }
+    } else if (rightIndex < length && compare(right, node) < 0) {
+      heap[index] = right;
+      heap[rightIndex] = node;
+      index = rightIndex;
+    } else {
+      return;
+    }
+  }
+}

@@ -1,6 +1,10 @@
 // fiber 的工作循环
 
-import { scheduleCallback } from "../../scheduler";
+import {
+  scheduleCallback,
+  NormalPriority as NormalSchedulerPriority,
+  shouldYield,
+} from "scheduler";
 import { createWorkInProgress } from "./ReactFiber";
 import { beginWork } from "./ReactFiberBeginWork";
 import { completeWork } from "./ReactFiberCompleteWork";
@@ -44,7 +48,10 @@ function ensureRootIsScheduled(root) {
   if (workInProgressRoot) return;
   workInProgressRoot = root;
   /**批量更新防止多次调用 end*/
-  scheduleCallback(performConcurrentWorkOnRoot.bind(null, root));
+  scheduleCallback(
+    NormalSchedulerPriority,
+    performConcurrentWorkOnRoot.bind(null, root)
+  );
 }
 /**
  * 根据虚拟DOM构建fiber，要创建真实的DOM节点，插入到容器
@@ -61,10 +68,13 @@ function performConcurrentWorkOnRoot(root) {
   commitRoot(root);
   /**调动更新完成 scheduleUpdateOnFiber-end*/
   workInProgressRoot = null;
+  // return performConcurrentWorkOnRoot;
 }
 
 function flushPassiveEffect() {
-  console.log("下一个宏任务中 flushPassiveEffect ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+  console.log(
+    "下一个宏任务中 flushPassiveEffect ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  );
   if (rootWithPendingPassiveEffects !== null) {
     const root = rootWithPendingPassiveEffects;
     // 执行卸载副作用 destory
@@ -91,7 +101,7 @@ function commitRoot(root) {
     if (!rootDoesHavePassiveEffects) {
       rootDoesHavePassiveEffects = true;
       // 有空闲时间 - 开启一个宏任务
-      scheduleCallback(flushPassiveEffect);
+      scheduleCallback(NormalSchedulerPriority, flushPassiveEffect);
     }
   }
   console.log("开始 commit ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
@@ -102,11 +112,15 @@ function commitRoot(root) {
   // 如果自己有副作用或者子节点有副作用，就提交DOM操作
   if (subtreeHasEffects || rootHasEffect) {
     // 当DOM执行变更之后
-    console.log("DOM 执行变更 commitMutationEffectsOnFiber ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    console.log(
+      "DOM 执行变更 commitMutationEffectsOnFiber ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    );
     commitMutationEffectsOnFiber(finishedWork, root);
     // 执行 useLayoutEffect -> DOM 变更之后UI渲染之前执行
-    console.log("DOM 执行变更后 commitLayoutEffects ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-    commitLayoutEffects(finishedWork, root)
+    console.log(
+      "DOM 执行变更后 commitLayoutEffects ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    );
+    commitLayoutEffects(finishedWork, root);
     if (rootDoesHavePassiveEffects) {
       rootDoesHavePassiveEffects = false;
       rootWithPendingPassiveEffects = root;
@@ -127,6 +141,15 @@ function renderRootSync(root) {
   prepareFreshStack(root);
   workLoopSync();
 }
+
+function workLoopConcurrent() {
+  // 如果有下一个要构建的fiber，且时间片没有过期
+  while (workInProgress !== null && !shouldYield()) {
+    // 执行工作单元
+    performUnitOfWork(workInProgress);
+  }
+}
+
 function workLoopSync() {
   // Perform work without checking if we need to yield between fiber.
   while (workInProgress !== null) {
