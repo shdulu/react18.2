@@ -36,6 +36,5 @@ ReactDOMRoot.prototype.render = function (children) {
   if (root === null) {
     throw new Error("Cannot update an unmounted root.");
   }
-
   updateContainer(children, root);
 };

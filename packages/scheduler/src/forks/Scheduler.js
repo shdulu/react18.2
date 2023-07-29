@@ -7,11 +7,6 @@ import {
   IdlePriority,
 } from "../SchedulerPriorities";
 
-// 此处后面会实现一个优先队列
-// export function scheduleCallback(callback) {
-//   // 告诉浏览器空闲的时候执行
-//   requestIdleCallback(callback);
-// }
 
 // 任务ID计数器
 let taskIdCounter = 1;
@@ -80,11 +75,11 @@ export function scheduleCallback(priorityLevel, callback) {
   // 计算此任务的过期时间
   const expirationTime = startTime + timeout;
   const newTask = {
-    id: taskIdCounter++,
-    callback, // 回调函数或者任务函数
-    priorityLevel, // 优先级别
-    startTime, // 任务的开始时间
-    expirationTime, // 任务的过期时间
+    id: taskIdCounter++, // 自增id
+    callback, // 真正要执行的任务
+    priorityLevel, // 任务优先级别
+    startTime, // 任务开始时间
+    expirationTime, // 任务过期时间
     sortIndex: expirationTime, // 排序依赖
   };
   // 向最小堆里添加任务，排序的依据是过期时间
@@ -111,7 +106,6 @@ function requestHostCallback(callback) {
 }
 
 function schedulePerformWorkUntilDeadline() {
-  debugger
   port2.postMessage(null);
 }
 
@@ -134,6 +128,7 @@ function shouldYieldToHost() {
 function workLoop(startTime) {
   let currentTime = startTime;
   currentTask = peek(taskQueue); // 取出任务最小堆中堆顶优先级最高的任务
+  debugger
   while (currentTask !== null) {
     if (currentTask.expirationTime > currentTime && shouldYieldToHost()) {
       // 如果此任务的过期事件小于当前时间，也就是说没有过期，并且需要放弃执行-申请的时间片到期了
@@ -165,13 +160,13 @@ function workLoop(startTime) {
   // 如果循环结束还有未完成的任务，那就表示 hasMoreWork = true
   if (currentTask !== null) {
     return true;
+    // 返回 ture  hasMoreWork- true 申请下一个时间片
   }
   return false;
 }
 
 function performWorkUntilDeadline() {
-  debugger
-  if (scheduleHostCallback) {
+  if (scheduleHostCallback !== null) {
     // 先获取开始执行任务的时间
     // 本次申请时间片的开始时间
     startTime = getCurrentTime();

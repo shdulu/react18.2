@@ -3,6 +3,14 @@ let NoLane = 0b00;
 let SyncLane = 0b01;
 let InputContinuousHydrationLane = 0b10;
 
+function isSubsetOfLanes(set, subset) {
+  return (set & subset) === subset;
+}
+
+function mergeLanes(a, b) {
+  return a | b;
+}
+
 function initializeUpdateQueue(fiber) {
   let queue = {
     baseState: fiber.memoizedState, // 本次更新前当前fiber的状态，更新会基于他计算
@@ -24,7 +32,7 @@ initializeUpdateQueue(fiber);
 let updateA = {
   id: "A",
   payload: (state) => state + "A",
-  lane: InputContinuousHydrationLane,
+  lane: SyncLane,
 };
 enqueueUpdate(fiber, updateA);
 let updateB = {
@@ -45,6 +53,8 @@ let updateD = {
   lane: SyncLane,
 };
 enqueueUpdate(fiber, updateD);
+
+
 
 function enqueueUpdate(fiber, update) {
   let updateQueue = fiber.updateQueue;
@@ -85,25 +95,60 @@ function processUpdateQueue(fiber, renderLanes) {
     lastBaseUpdate = lastPendingUpdate;
   }
   if (firstBaseUpdate !== null) {
-    let currentState = fiber.memoizedState;
+    let newState = queue.baseState;
+    let newLanes = NoLane;
+    let newBaseState = null;
+    let newFirstBaseUpdate = null;
+    let newLastBaseUpdate = null;
     let update = firstBaseUpdate;
     do {
-      // 如果当前的渲染优先级比当前的更新优先级要小或等于，此更新要生效
-      if (renderLanes >= update.lane) {
-        currentState = update.payload(currentState);
+      const updateLane = update.lane;
+      if (!isSubsetOfLanes(renderLanes, updateLane)) {
+        const clone = {
+          id: update.id,
+          lane: updateLane,
+          payload: update.payload,
+        };
+        if (newLastBaseUpdate === null) {
+          newFirstBaseUpdate = newLastBaseUpdate = clone;
+          newBaseState = newState;
+        } else {
+          newLastBaseUpdate = newLastBaseUpdate.next = clone;
+        }
+        newLanes = mergeLanes(newLanes, updateLane);
       } else {
-        // 如果优先级不够，需要保存跳过的更新到baseQueue
+        if (newLastBaseUpdate !== null) {
+          const clone = {
+            id: update.id,
+            lane: NoLane,
+            payload: update.payload,
+          };
+          newLastBaseUpdate = newLastBaseUpdate.next = clone;
+        }
+        newState = getStateFromUpdate(update, newState);
       }
       update = update.next;
     } while (update);
-    fiber.memoizedState = currentState;
+    if(!newLastBaseUpdate) {
+      newBaseState = newState
+    }
+    queue.baseState = newBaseState
+    queue.firstBaseUpdate = newFirstBaseUpdate
+    queue.lastBaseUpdate = newLastBaseUpdate
+    fiber.lane = newLanes
+    debugger
+    fiber.memoizedState = newState
   }
 }
 
+function getStateFromUpdate(update, prevState) {
+  return update.payload(prevState);
+}
+debugger
 // 处理更新队列 - 需要指定一个渲染优先级
 processUpdateQueue(fiber, SyncLane);
 console.log(fiber.memoizedState); // BD
-
+debugger
 let updateE = {
   id: "E",
   payload: (state) => state + "E",
