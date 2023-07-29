@@ -8,20 +8,13 @@ import {
 import { createWorkInProgress } from "./ReactFiber";
 import { beginWork } from "./ReactFiberBeginWork";
 import { completeWork } from "./ReactFiberCompleteWork";
-import {
-  NoFlags,
-  MutationMask,
-  Placement,
-  Update,
-  Passive,
-} from "./ReactFiberFlags";
+import { NoFlags, MutationMask, Passive } from "./ReactFiberFlags";
 import {
   commitMutationEffectsOnFiber,
   commitPassiveUnmountEffects,
   commitPassiveMountEffects,
   commitLayoutEffects,
 } from "./ReactFiberCommitWork";
-import { HostComponent, HostRoot, HostText } from "./ReactWorkTags";
 import { finishQueueingConcurrentUpdates } from "./ReactFiberConcurrentUpdates";
 
 let workInProgress = null; // 正在构建中的fiber 树
@@ -59,7 +52,7 @@ function ensureRootIsScheduled(root) {
  *
  * @param {*} root
  */
-function performConcurrentWorkOnRoot(root) {
+function performConcurrentWorkOnRoot(root, timeout) {
   // 第一次渲染以同步的方式渲染根节点，初次渲染的时候都是同步的
   renderRootSync(root);
   // 开始进入提交阶段，就是执行副作用，修改真实DOM
@@ -68,7 +61,6 @@ function performConcurrentWorkOnRoot(root) {
   commitRoot(root);
   /**调动更新完成 scheduleUpdateOnFiber-end*/
   workInProgressRoot = null;
-  // return performConcurrentWorkOnRoot;
 }
 
 function flushPassiveEffect() {

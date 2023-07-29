@@ -54,12 +54,11 @@ var IDLE_PRIORITY_TIMEOUT = maxSigned31BitInt;
  * @param {*} callback
  */
 export function scheduleCallback(priorityLevel, callback) {
-  // 获取当前时间
+  // 获取开始执行当前时间
   const currentTime = getCurrentTime();
-  debugger;
   // 此任务的开始时间
   const startTime = currentTime;
-  let timeout; // 超时时间超时时间内高优先级优先执行，过了超时时间不能被打断执行
+  let timeout; // 超时时间内高优先级优先执行，过了超时时间不能被打断执行
   switch (priorityLevel) {
     case ImmediatePriority:
       timeout = IMMEDIATE_PRIORITY_TIMEOUT; // -1
@@ -91,28 +90,28 @@ export function scheduleCallback(priorityLevel, callback) {
   // 向最小堆里添加任务，排序的依据是过期时间
   // 队首的优先级最高
   push(taskQueue, newTask); // [task1, task2, task3]
-  // flushWork 执行工作、刷新工作、执行任务
-  requestHostCallback(flushWork);
+  requestHostCallback(workLoop);
   return newTask;
 }
 
-/**
- * 开始执行任务队列中的任务
- *
- * @param {*} startTime
- */
-function flushWork(startTime) {
-  return workLoop(startTime);
-}
+// /**
+//  * 开始执行任务队列中的任务
+//  *
+//  * @param {*} startTime
+//  */
+// function flushWork(startTime) {
+//   return workLoop(startTime);
+// }
 
-function requestHostCallback(flushWork) {
+function requestHostCallback(callback) {
   // 先缓存回调函数
-  scheduleHostCallback = flushWork;
+  scheduleHostCallback = callback;
   // 执行工作直到截止时间
   schedulePerformWorkUntilDeadline();
 }
 
 function schedulePerformWorkUntilDeadline() {
+  debugger
   port2.postMessage(null);
 }
 
@@ -146,7 +145,9 @@ function workLoop(startTime) {
     const callback = currentTask.callback();
     if (typeof callback === "function") {
       currentTask.callback = null;
-      const continuationCallback = callback();
+      const didUserCallbackTimeout = currentTask.expirationTime <= currentTime;
+
+      const continuationCallback = callback(didUserCallbackTimeout);
       if (typeof continuationCallback === "function") {
         currentTask.callback = continuationCallback;
         return true; // 还有任务要执行返回true
@@ -169,6 +170,7 @@ function workLoop(startTime) {
 }
 
 function performWorkUntilDeadline() {
+  debugger
   if (scheduleHostCallback) {
     // 先获取开始执行任务的时间
     // 本次申请时间片的开始时间
@@ -176,7 +178,7 @@ function performWorkUntilDeadline() {
     // 是否有更多的工作要做
     let hasMoreWork = true;
     try {
-      // 执行 flushWork，并判断有没有返回值
+      // 执行并判断有没有返回值
       hasMoreWork = scheduleHostCallback(startTime);
     } finally {
       // 执行完以后如果为true，说明还有更多工作要做
@@ -194,7 +196,15 @@ function getCurrentTime() {
   // https://developer.mozilla.org/zh-CN/docs/Web/API/Performance/now
   // 返回值表示为从time origin之后到当前调用时经过的时间
   // 自创建上下文以来经过的时间
-  return performance.now();
+  const hasPerformanceNow =
+    typeof performance === "object" && typeof performance.now === "function";
+  if (hasPerformanceNow) {
+    return performance.now();
+  } else {
+    const localDate = Date;
+    const initialTime = localDate.now();
+    return localDate.now() - initialTime;
+  }
 }
 
 export {
