@@ -15,6 +15,7 @@ const taskQueue = [];
 let scheduleHostCallback = null;
 let startTime = -1;
 let currentTask = null;
+let currentPriorityLevel = NormalPriority;
 // React 每一帧向浏览器申请5ms，用于自己任务的执行
 // 如果5ms内没有完成，React也会放弃控制权，把控制权交还浏览器
 const frameInterval = 5;
@@ -140,6 +141,7 @@ function workLoop(startTime) {
     const callback = currentTask.callback();
     if (typeof callback === "function") {
       currentTask.callback = null;
+      // currentPriorityLevel = currentTask.priorityLevel;
       const didUserCallbackTimeout = currentTask.expirationTime <= currentTime;
 
       const continuationCallback = callback(didUserCallbackTimeout);
@@ -202,6 +204,10 @@ function getCurrentTime() {
   }
 }
 
+// function getCurrentPriorityLevel() {
+//   return currentPriorityLevel;
+// }
+
 export {
   shouldYieldToHost as shouldYield,
   ImmediatePriority,
@@ -209,4 +215,5 @@ export {
   NormalPriority,
   LowPriority,
   IdlePriority,
+  // getCurrentPriorityLevel,
 };

@@ -31,5 +31,8 @@ function FunctionComponent() {
   return <button onClick={() => setNumber(number + 1)}>{number}</button>;
 }
 let element = <FunctionComponent title="函数组件"></FunctionComponent>;
+
+let element1 = <h1>hello world</h1>
+
 const root = createRoot(document.getElementById("root"));
-root.render(element);
+root.render(element1);

@@ -9,6 +9,10 @@ import { createWorkInProgress } from "./ReactFiber";
 import { beginWork } from "./ReactFiberBeginWork";
 import { completeWork } from "./ReactFiberCompleteWork";
 import { NoFlags, MutationMask, Passive } from "./ReactFiberFlags";
+import { NoLane } from "./ReactFiberLane";
+import { getCurrentUpdatePriority } from "./ReactEventPriorities";
+import { getCurrentEventPriority } from "react-dom-bindings/src/client/ReactDOMHostConfig";
+
 import {
   commitMutationEffectsOnFiber,
   commitPassiveUnmountEffects,
@@ -186,4 +190,13 @@ function completeUnitOfWork(unitOfWork) {
     completedWork = returnFiber;
     workInProgress = completedWork;
   } while (completedWork !== null);
+}
+
+export function requestUpdateLane() {
+  const updateLane = getCurrentUpdatePriority();
+  if (updateLane !== NoLane) {
+    return updateLane;
+  }
+  const eventLane = getCurrentEventPriority();
+  return eventLane;
 }
