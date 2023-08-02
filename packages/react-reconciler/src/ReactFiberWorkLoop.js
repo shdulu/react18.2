@@ -2,15 +2,34 @@
 
 import {
   scheduleCallback,
-  NormalPriority as NormalSchedulerPriority,
   shouldYield,
 } from "scheduler";
+import {
+  ImmediatePriority as ImmediateSchedulerPriority,
+  UserBlockingPriority as UserBlockingSchedulerPriority,
+  NormalPriority as NormalSchedulerPriority,
+  IdlePriority as IdleSchedulerPriority,
+} from "./Scheduler";
 import { createWorkInProgress } from "./ReactFiber";
 import { beginWork } from "./ReactFiberBeginWork";
 import { completeWork } from "./ReactFiberCompleteWork";
 import { NoFlags, MutationMask, Passive } from "./ReactFiberFlags";
-import { NoLane } from "./ReactFiberLane";
-import { getCurrentUpdatePriority } from "./ReactEventPriorities";
+import {
+  NoLane,
+  NoLanes,
+  markRootUpdated,
+  getNextLanes,
+  getHighestPriorityLane,
+  SyncLane,
+} from "./ReactFiberLane";
+import {
+  getCurrentUpdatePriority,
+  lanesToEventPriority,
+  DiscreteEventPriority,
+  ContinuousEventPriority,
+  DefaultEventPriority,
+  IdleEventPriority
+} from "./ReactEventPriorities";
 import { getCurrentEventPriority } from "react-dom-bindings/src/client/ReactDOMHostConfig";
 
 import {
@@ -26,21 +45,56 @@ let workInProgressRoot = null; // 当前正在调度的根节点
 let rootDoesHavePassiveEffects = false; // 此根节点上有没有useEffect类似的副作用
 let rootWithPendingPassiveEffects = null; // 具有useEffect 副作用的根节点 FiberRootNode
 
-// FiberRootNode.current 当前页面中的fiber 树
-
 /**
  * 计划更新root
  * 任务调度功能
  *
  * @export
  * @param {*} root
+ * @param {*} fiber
+ * @param {*} lane
  */
-export function scheduleUpdateOnFiber(root, fiber) {
+export function scheduleUpdateOnFiber(root, fiber, lane) {
+  markRootUpdated(root, lane);
   // 确保调度执行root上的更新
   ensureRootIsScheduled(root);
 }
 
+/**
+ *
+ *
+ * @param {*} root
+ * @return {*}
+ */
 function ensureRootIsScheduled(root) {
+  // 获取当前优先级最高的车道
+  const nextLanes = getNextLanes(root, NoLanes); // 32
+  // 获取最新的调度优先级
+  let newCallbackPriority = getHighestPriorityLane(nextLanes);
+  if (newCallbackPriority === SyncLane) {
+    // TODO
+  } else {
+    // 如果不是童虎，需要调度一个新的任务
+    let schedulerPriorityLevel;
+    switch (lanesToEventPriority(nextLanes)) {
+      case DiscreteEventPriority:
+        schedulerPriorityLevel = ImmediateSchedulerPriority;
+        break;
+      case ContinuousEventPriority:
+        schedulerPriorityLevel = UserBlockingSchedulerPriority;
+        break;
+      case DefaultEventPriority:
+        schedulerPriorityLevel = NormalSchedulerPriority;
+        break;
+      case IdleEventPriority:
+        schedulerPriorityLevel = IdleSchedulerPriority;
+        break;
+      default:
+        schedulerPriorityLevel = NormalSchedulerPriority;
+        break;
+    }
+  }
+
   /** 批量更新防止多次调用 start */
   if (workInProgressRoot) return;
   workInProgressRoot = root;

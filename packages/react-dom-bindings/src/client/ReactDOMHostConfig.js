@@ -105,7 +105,7 @@ export function removeChild(parentInstance, child) {
 export function getCurrentEventPriority() {
   const currentEvent = window.event;
   if (currentEvent === undefined) {
-    return DefaultEventPriority; // 16
+    return DefaultEventPriority; // 32
   }
   // 根据事件类型获取对应的事件优先级
   const eventLane = getEventPriority(currentEvent.type);
