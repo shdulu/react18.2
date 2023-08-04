@@ -1,8 +1,12 @@
 import * as Scheduler from "scheduler";
 
-export const ImmediatePriority = Scheduler.ImmediatePriority;
-export const UserBlockingPriority = Scheduler.UserBlockingPriority;
-export const NormalPriority = Scheduler.NormalPriority;
-export const LowPriority = Scheduler.LowPriority;
-export const IdlePriority = Scheduler.IdlePriority;
+
+export const shouldYield = Scheduler.unstable_shouldYield;
+export const scheduleCallback = Scheduler.unstable_scheduleCallback;
+
+export const ImmediatePriority = Scheduler.unstable_ImmediatePriority;
+export const UserBlockingPriority = Scheduler.unstable_UserBlockingPriority;
+export const NormalPriority = Scheduler.unstable_NormalPriority;
+export const LowPriority = Scheduler.unstable_LowPriority;
+export const IdlePriority = Scheduler.unstable_IdlePriority;
 // export const getCurrentPriorityLevel = Scheduler.getCurrentPriorityLevel;

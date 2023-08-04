@@ -7,7 +7,6 @@ import {
   IdlePriority,
 } from "../SchedulerPriorities";
 
-
 // 任务ID计数器
 let taskIdCounter = 1;
 // 任务最小堆
@@ -49,7 +48,7 @@ var IDLE_PRIORITY_TIMEOUT = maxSigned31BitInt;
  * @param {*} priorityLevel
  * @param {*} callback
  */
-export function scheduleCallback(priorityLevel, callback) {
+function scheduleCallback(priorityLevel, callback) {
   // 获取开始执行当前时间
   const currentTime = getCurrentTime();
   // 此任务的开始时间
@@ -129,7 +128,6 @@ function shouldYieldToHost() {
 function workLoop(startTime) {
   let currentTime = startTime;
   currentTask = peek(taskQueue); // 取出任务最小堆中堆顶优先级最高的任务
-  debugger
   while (currentTask !== null) {
     if (currentTask.expirationTime > currentTime && shouldYieldToHost()) {
       // 如果此任务的过期事件小于当前时间，也就是说没有过期，并且需要放弃执行-申请的时间片到期了
@@ -209,11 +207,12 @@ function getCurrentTime() {
 // }
 
 export {
-  shouldYieldToHost as shouldYield,
-  ImmediatePriority,
-  UserBlockingPriority,
-  NormalPriority,
-  LowPriority,
-  IdlePriority,
+  scheduleCallback as unstable_scheduleCallback,
+  shouldYieldToHost as unstable_shouldYield,
+  ImmediatePriority as unstable_ImmediatePriority,
+  UserBlockingPriority as unstable_UserBlockingPriority,
+  NormalPriority as unstable_NormalPriority,
+  LowPriority as unstable_LowPriority,
+  IdlePriority as unstable_IdlePriority,
   // getCurrentPriorityLevel,
 };

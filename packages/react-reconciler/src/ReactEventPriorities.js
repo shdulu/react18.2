@@ -8,7 +8,7 @@ import {
   includesNonIdleWork,
 } from "./ReactFiberLane";
 
-export const DiscreteEventPriority = SyncLane; // 1
+export const DiscreteEventPriority = SyncLane; // 2
 // 连续事件的优先级 mousemove
 export const ContinuousEventPriority = InputContinuousLane; // 8
 // 默认事件车道
@@ -33,22 +33,25 @@ export function isHigherEventPriority(eventPriority, lane) {
 }
 
 /**
- * 把车道变成优先级
+ * 把lane车道转成事件优先级
+ * 事件优先级有4个
  *
  * @export
  * @param {*} lanes
  * @return {*}
  */
 export function lanesToEventPriority(lanes) {
+  // 获取最高优先级的lane
   let lane = getHighestPriorityLane(lanes);
+
   if (!isHigherEventPriority(DiscreteEventPriority, lane)) {
-    return DiscreteEventPriority;
+    return DiscreteEventPriority; // 2
   }
   if (!isHigherEventPriority(ContinuousEventPriority, lane)) {
-    return ContinuousEventPriority;
+    return ContinuousEventPriority; // 8
   }
   if (includesNonIdleWork(lane)) {
-    return DefaultEventPriority;
+    return DefaultEventPriority; // 32
   }
-  return IdleEventPriority;
+  return IdleEventPriority; // 536870912
 }

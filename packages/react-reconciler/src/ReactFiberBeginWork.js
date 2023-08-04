@@ -1,4 +1,3 @@
-import logger, { indent } from "shared/logger";
 import {
   HostRoot,
   HostComponent,
@@ -6,7 +5,7 @@ import {
   IndeterminateComponent,
   FunctionComponent,
 } from "./ReactWorkTags";
-import { processUpdateQueue } from "./ReactFiberClassUpdateQueue";
+import { processUpdateQueue, cloneUpdateQueue } from "./ReactFiberClassUpdateQueue";
 import { mountChildFibers, reconcileChildFibers } from "./ReactChildFiber";
 import { shouldSetTextContent } from "react-dom-bindings/src/client/ReactDOMHostConfig";
 import { renderWithHooks } from "./ReactFiberHooks";
@@ -32,9 +31,12 @@ function reconcileChildren(current, workInProgress, nextChildren) {
   }
 }
 
-function updateHostRoot(current, workInProgress) {
+function updateHostRoot(current, workInProgress, renderLanes) {
+  const nextProps = workInProgress.pendingProps;
+  cloneUpdateQueue(current, workInProgress);
+
   // 需要知道它的子虚拟DOM，知道它的儿子的虚拟DOM信息
-  processUpdateQueue(workInProgress); // workInProgress.memoizedState={element}
+  processUpdateQueue(workInProgress, nextProps, renderLanes); // workInProgress.memoizedState={element}
   // 根节点的 HostRootFiber.memoizedState 属性指向虚拟DOM
   const nextState = workInProgress.memoizedState;
   const nextChildren = nextState.element;
@@ -103,14 +105,13 @@ export function updateFunctionComponent(
  * @export
  * @param {*} current 老fiber
  * @param {*} workInProgress 新的fiber
+ * @param {*} renderLanes
  * @return {*}
  */
-export function beginWork(current, workInProgress) {
-  // logger(" ".repeat(indent.number) + "beginWork", workInProgress);
-  // indent.number += 2;
+export function beginWork(current, workInProgress, renderLanes) {
   switch (workInProgress.tag) {
     case HostRoot: // 根节点类型
-      return updateHostRoot(current, workInProgress);
+      return updateHostRoot(current, workInProgress, renderLanes);
     case FunctionComponent: {
       const Component = workInProgress.type;
       const nextProps = workInProgress.pendingProps;
@@ -118,16 +119,18 @@ export function beginWork(current, workInProgress) {
         current,
         workInProgress,
         Component,
-        nextProps
+        nextProps,
+        renderLanes
       );
     }
     case HostComponent: // 原生节点类型
-      return updateHostComponent(current, workInProgress);
+      return updateHostComponent(current, workInProgress, renderLanes);
     case IndeterminateComponent:
       return mountIndeterminateComponent(
         current,
         workInProgress,
-        workInProgress.type
+        workInProgress.type,
+        renderLanes
       );
     case HostText:
       return null;
