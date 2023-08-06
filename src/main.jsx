@@ -32,7 +32,19 @@ function FunctionComponent() {
 }
 let element = <FunctionComponent title="函数组件"></FunctionComponent>;
 
-let element1 = <h1>hello world</h1>
+function FunctionComponent1() {
+  console.log("FunctionComponent1");
+  const [number, setNumber] = useState(0);
+  // 默认渲染 lane - 32 点击事件-2 useEffect里 - 32
+  useEffect(() => {
+    // debugger;
+    setNumber((number) => number + 1);
+  }, []);
+  return (
+    <button onClick={() => setNumber((number) => number + 1)}>{number}</button>
+  );
+}
+let element1 = <FunctionComponent1></FunctionComponent1>;
 
 const root = createRoot(document.getElementById("root"));
 root.render(element1);

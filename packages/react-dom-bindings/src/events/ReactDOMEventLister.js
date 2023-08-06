@@ -16,6 +16,8 @@ import {
   ContinuousEventPriority,
   DefaultEventPriority,
   IdleEventPriority,
+  setCurrentUpdatePriority,
+  getCurrentUpdatePriority,
 } from "react-reconciler/src/ReactEventPriorities";
 
 /**
@@ -33,7 +35,7 @@ export function createEventListerWrapperWithPriority(
   eventSystemFlags,
   isCapturePhaseListener
 ) {
-  const listenerWrapper = dispatchDiscretEvent;
+  const listenerWrapper = dispatchDiscreteEvent;
   return listenerWrapper.bind(
     null,
     domEventName,
@@ -50,13 +52,21 @@ export function createEventListerWrapperWithPriority(
  * @param {*} container 容器 div#root
  * @param {*} nativeEvent 原生事件
  */
-function dispatchDiscretEvent(
+function dispatchDiscreteEvent(
   domEventName,
   eventSystemFlags,
   container,
   nativeEvent
 ) {
-  dispatchEvent(domEventName, eventSystemFlags, container, nativeEvent);
+  // 在点击按钮的时候需要设置更新的优先级
+  const previousPriority = getCurrentUpdatePriority();
+  try {
+    // 把当前更新优先级设置为离散事件优先级
+    setCurrentUpdatePriority(DiscreteEventPriority);
+    dispatchEvent(domEventName, eventSystemFlags, container, nativeEvent);
+  } finally {
+    setCurrentUpdatePriority(previousPriority);
+  }
 }
 
 /**

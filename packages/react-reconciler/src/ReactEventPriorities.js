@@ -45,13 +45,13 @@ export function lanesToEventPriority(lanes) {
   let lane = getHighestPriorityLane(lanes);
 
   if (!isHigherEventPriority(DiscreteEventPriority, lane)) {
-    return DiscreteEventPriority; // 2
+    return DiscreteEventPriority; // 2 同步事件
   }
   if (!isHigherEventPriority(ContinuousEventPriority, lane)) {
-    return ContinuousEventPriority; // 8
+    return ContinuousEventPriority; // 8 离散事件
   }
   if (includesNonIdleWork(lane)) {
-    return DefaultEventPriority; // 32
+    return DefaultEventPriority; // 32 默认事件
   }
-  return IdleEventPriority; // 536870912
+  return IdleEventPriority; //  空闲事件
 }

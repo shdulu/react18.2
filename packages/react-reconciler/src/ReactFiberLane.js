@@ -1,5 +1,6 @@
 // Lane values below should be kept in sync with getLabelForLane(), used by react-devtools-timeline.
 // If those values are changed that package should be rebuilt and redeployed.
+import { allowConcurrentByDefault } from "shared/ReactFeatureFlags";
 
 export const TotalLanes = 31;
 
@@ -47,8 +48,19 @@ function getHighestPriorityLanes(lanes) {
   return getHighestPriorityLane(lanes);
 }
 
-// 32 位二进制找到最右侧的 1 - 只能返回一个车道
+/**
+ * 32 位二进制找到最右侧的 1 - 只能返回一个车道
+ * 负数以一种 '二补数' 的二进制编码存储，通过一下步骤获取一个数值的二补数
+ * 1. 确定绝对值的二进制表示
+ * 2. 找到数值的 '一补数'，即每个0都变成1，每个1都变成0
+ * 3. 给结果加1
+ *
+ * @export
+ * @param {*} lanes
+ * @return {*}
+ */
 export function getHighestPriorityLane(lanes) {
+  // 拿到二补数进行按位与运算
   return lanes & -lanes;
 }
 
@@ -69,4 +81,22 @@ export function isSubsetOfLanes(set, subset) {
 
 export function mergeLanes(a, b) {
   return a | b;
+}
+
+export function includesSyncLane(lanes) {
+  return (lanes & (SyncLane | SyncHydrationLane)) !== NoLanes;
+}
+
+// 判断是否包含阻塞的车道
+export function includesBlockingLane(root, lanes) {
+  if (allowConcurrentByDefault) {
+    // 如果允许默认赛道并发渲染
+    return false;
+  }
+  const SyncDefaultLanes =
+    InputContinuousHydrationLane |
+    InputContinuousLane |
+    DefaultHydrationLane |
+    DefaultLane;
+  return (lanes & SyncDefaultLanes) !== NoLanes;
 }

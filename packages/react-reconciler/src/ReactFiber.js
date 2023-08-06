@@ -5,6 +5,7 @@ import {
   HostText,
 } from "./ReactWorkTags";
 import { NoFlags } from "./ReactFiberFlags";
+import { NoLanes } from "./ReactFiberLane";
 
 /**
  *
@@ -41,7 +42,7 @@ function FiberNode(tag, pendingProps, key) {
   // React 执行两个阶段 1. render计算副作用 2. commit提交副作用
 
   this.deletions = null; // 存放将要删除的子fiber
-  //   this.lanes = NoLanes;
+  this.lanes = NoLanes;
   //   this.childLanes = NoLanes;
 
   // fiber轮替 - 双缓存DOM-DIFF

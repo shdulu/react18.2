@@ -20,8 +20,7 @@ export function createContainer(containerInfo) {
  * @param {ReactNodeList} element render -> 虚拟DOM
  * @param {*} container DOM容器 FiberRootNode实例
  */
-export function updateContainer(element, container) {
-  debugger
+export function updateContainer(element, container) {  
   // 获取当前根fiber
   const current = container.current;
   // 请求一个更新的车道

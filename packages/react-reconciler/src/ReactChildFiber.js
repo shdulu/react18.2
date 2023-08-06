@@ -212,7 +212,6 @@ function createChildReconciler(shouldTrackSideEffects) {
    * @param {*} newChildren
    */
   function reconcileChildrenArray(returnFiber, currentFirstChild, newChildren) {
-    // debugger
     let resultingFirstChild = null; // 返回的第一个新儿子
     let previousNewFiber = null; // 上一个的一个新的fiber
     let newIdx = 0; // 用来遍历新的虚拟dom的索引

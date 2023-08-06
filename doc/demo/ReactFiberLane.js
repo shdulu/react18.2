@@ -54,8 +54,6 @@ let updateD = {
 };
 enqueueUpdate(fiber, updateD);
 
-
-
 function enqueueUpdate(fiber, update) {
   let updateQueue = fiber.updateQueue;
   let sharedQueue = updateQueue.shared;
@@ -129,26 +127,26 @@ function processUpdateQueue(fiber, renderLanes) {
       }
       update = update.next;
     } while (update);
-    if(!newLastBaseUpdate) {
-      newBaseState = newState
+    if (!newLastBaseUpdate) {
+      newBaseState = newState;
     }
-    queue.baseState = newBaseState
-    queue.firstBaseUpdate = newFirstBaseUpdate
-    queue.lastBaseUpdate = newLastBaseUpdate
-    fiber.lane = newLanes
-    debugger
-    fiber.memoizedState = newState
+    queue.baseState = newBaseState;
+    queue.firstBaseUpdate = newFirstBaseUpdate;
+    queue.lastBaseUpdate = newLastBaseUpdate;
+    fiber.lane = newLanes;
+
+    fiber.memoizedState = newState;
   }
 }
 
 function getStateFromUpdate(update, prevState) {
   return update.payload(prevState);
 }
-debugger
+
 // 处理更新队列 - 需要指定一个渲染优先级
 processUpdateQueue(fiber, SyncLane);
 console.log(fiber.memoizedState); // BD
-debugger
+
 let updateE = {
   id: "E",
   payload: (state) => state + "E",

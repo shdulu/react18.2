@@ -6,6 +6,9 @@ function FiberRootNode(containerInfo) {
   this.containerInfo = containerInfo; // div#root
   // 表示此根上有那些车道等待被处理
   this.pendingLanes = NoLanes;
+  this.current = null;
+  this.finishedWork = null;
+  this.callbackNode = null;
 }
 /**
  * 这里是真正的创建 FiberRootNode

@@ -102,7 +102,6 @@ export function processUpdateQueue(workInProgress, props, renderLanes) {
     // 第一个更新
     let update = firstBaseUpdate;
     do {
-      debugger;
       const updateLane = update.lane;
       const shouldSkipUpdate = !isSubsetOfLanes(renderLanes, updateLane);
       // 判断优先级是否足够,如果不够就跳过此更新

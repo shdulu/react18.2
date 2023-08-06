@@ -1,6 +1,6 @@
 import ReactSharedInternals from "shared/ReactSharedInternals";
 import { enqueueConcurrentHookUpdate } from "./ReactFiberConcurrentUpdates";
-import { scheduleUpdateOnFiber } from "./ReactFiberWorkLoop";
+import { requestUpdateLane, scheduleUpdateOnFiber } from "./ReactFiberWorkLoop";
 import {
   Passive as PassiveEffect,
   Update as UpdateEffect,
@@ -10,6 +10,7 @@ import {
   Passive as HookPassive,
   Layout as HookLayout,
 } from "./ReactHookEffectTags";
+import { NoLanes } from "./ReactFiberLane";
 
 const { ReactCurrentDispatcher } = ReactSharedInternals;
 let currentlyRenderingFiber = null; // 当前正在渲染中的fiber
@@ -94,7 +95,6 @@ function mountEffectImpl(fiberFlags, hookFlags, create, deps) {
   );
 }
 
-//
 function updateEffect(create, deps) {
   return updateEffectImpl(PassiveEffect, HookPassive, create, deps);
 }
@@ -221,27 +221,35 @@ function updateState() {
 }
 
 function dispatchSetstate(fiber, queue, action) {
+  // 获取当前的更新赛道 - 2
+  const lane = requestUpdateLane();
   const update = {
+    lane, // 本次更新优先级
     action,
     hasEagerState: false, // 是否有急切的更新
     eagerState: null, // 急切的更新状态
     next: null,
   };
   // 派发动作后，立刻用上一次的状态和上一次的reducer计算状态
-  const { lastRenderedReducer, lastRenderedState } = queue;
-  const eagerState = lastRenderedReducer(lastRenderedState, action);
-  update.hasEagerState = true;
-  update.eagerState = eagerState;
-  if (Object.is(eagerState, lastRenderedState)) {
-    return;
+  const alternate = fiber.alternate;
+  if (
+    fiber.lanes === NoLanes &&
+    (alternate === null || alternate.lanes === NoLanes)
+  ) {
+    const { lastRenderedReducer, lastRenderedState } = queue;
+    const eagerState = lastRenderedReducer(lastRenderedState, action);
+    update.hasEagerState = true;
+    update.eagerState = eagerState;
+    if (Object.is(eagerState, lastRenderedState)) {
+      return;
+    }
   }
   // 正常情况下会先调度更新，然后才会计算新的状态
   // mountState -> 优化了这里先立刻计算了一次状态做一次对比,如果一样就不再调度更新
 
   // 入队更新，并调度更新逻辑
-  const root = enqueueConcurrentHookUpdate(fiber, queue, update);
-  // debugger;
-  scheduleUpdateOnFiber(root);
+  const root = enqueueConcurrentHookUpdate(fiber, queue, update, lane);
+  scheduleUpdateOnFiber(root, fiber, lane);
 }
 
 function updateReducer(reducer, initialArg) {
@@ -287,6 +295,8 @@ function mountReducer(reducer, initialArg) {
     // 当前hooks的更新队列
     pending: null,
     dispatch: null,
+    lastRenderedReducer: reducer,
+    lastRenderedState: initialArg,
   };
   hook.queue = queue;
   const dispatch = (queue.dispatch = dispatchReducerAction.bind(
@@ -350,7 +360,6 @@ function mountWorkInProgressHook() {
  * @returns 虚拟DOM或者说React元素
  */
 export function renderWithHooks(current, workInProgress, Component, props) {
-  // debugger;
   currentlyRenderingFiber = workInProgress; // 当前正在执行的fiber
   workInProgress.updateQueue = null;
   // React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED
