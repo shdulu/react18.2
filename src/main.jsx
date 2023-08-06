@@ -37,7 +37,6 @@ function FunctionComponent1() {
   const [number, setNumber] = useState(0);
   // 默认渲染 lane - 32 点击事件-2 useEffect里 - 32
   useEffect(() => {
-    // debugger;
     setNumber((number) => number + 1);
   }, []);
   return (
