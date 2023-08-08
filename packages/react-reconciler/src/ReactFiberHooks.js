@@ -15,7 +15,6 @@ import { NoLanes } from "./ReactFiberLane";
 const { ReactCurrentDispatcher } = ReactSharedInternals;
 let currentlyRenderingFiber = null; // 当前正在渲染中的fiber
 let workInProgressHook = null; //
-
 let currentHook = null;
 
 const HooksDispatcherOnMount = {
@@ -232,18 +231,18 @@ function dispatchSetstate(fiber, queue, action) {
   };
   // 派发动作后，立刻用上一次的状态和上一次的reducer计算状态
   const alternate = fiber.alternate;
-  if (
-    fiber.lanes === NoLanes &&
-    (alternate === null || alternate.lanes === NoLanes)
-  ) {
-    const { lastRenderedReducer, lastRenderedState } = queue;
-    const eagerState = lastRenderedReducer(lastRenderedState, action);
-    update.hasEagerState = true;
-    update.eagerState = eagerState;
-    if (Object.is(eagerState, lastRenderedState)) {
-      return;
-    }
-  }
+  // if (
+  //   fiber.lanes === NoLanes &&
+  //   (alternate === null || alternate.lanes === NoLanes)
+  // ) {
+  //   const { lastRenderedReducer, lastRenderedState } = queue;
+  //   const eagerState = lastRenderedReducer(lastRenderedState, action);
+  //   update.hasEagerState = true;
+  //   update.eagerState = eagerState;
+  //   if (Object.is(eagerState, lastRenderedState)) {
+  //     return;
+  //   }
+  // }
   // 正常情况下会先调度更新，然后才会计算新的状态
   // mountState -> 优化了这里先立刻计算了一次状态做一次对比,如果一样就不再调度更新
 

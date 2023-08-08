@@ -34,13 +34,18 @@ let element = <FunctionComponent title="函数组件"></FunctionComponent>;
 
 function FunctionComponent1() {
   console.log("FunctionComponent1");
-  const [number, setNumber] = useState(0);
-  // 默认渲染 lane - 32 点击事件-2 useEffect里 - 32
+  const [numbers, setNumbers] = useState(new Array(10).fill("A"));
   useEffect(() => {
-    setNumber((number) => number + 1);
+    setTimeout(() => {}, 10);
+    setNumbers((numbers) => numbers.map((number) => number + "B"));
+    setNumbers((numbers) => numbers.map((number) => number + "B"));
   }, []);
   return (
-    <button onClick={() => setNumber((number) => number + 1)}>{number}</button>
+    <button onClick={() => setNumbers((numbers) => numbers.map(number => number + 'C')) }>
+      {numbers.map((number, index) => (
+        <span key={index}>{number}</span>
+      ))}
+    </button>
   );
 }
 let element1 = <FunctionComponent1></FunctionComponent1>;

@@ -13,6 +13,7 @@ import { listenToAllSupportedEvents } from "react-dom-bindings/src/events/DOMPlu
  * @return {ReactDOMRoot}
  */
 export function createRoot(container, options) {
+  // debugger
   // createContainer 函数用来创建 FiberRootNode 然后传递给 ReactDOMRoot,
   // 作为ReactDOMRoot的实例属性 _internalRoot
   const root = createContainer(container);

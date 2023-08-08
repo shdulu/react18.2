@@ -1,6 +1,6 @@
 import { createHostRootFiber } from "./ReactFiber";
 import { initializeUpdateQueue } from "./ReactFiberClassUpdateQueue";
-import { NoLanes } from "./ReactFiberLane";
+import { NoLanes, NoLane } from "./ReactFiberLane";
 
 function FiberRootNode(containerInfo) {
   this.containerInfo = containerInfo; // div#root
@@ -9,6 +9,7 @@ function FiberRootNode(containerInfo) {
   this.current = null;
   this.finishedWork = null;
   this.callbackNode = null;
+  this.callbackPriority = NoLane;
 }
 /**
  * 这里是真正的创建 FiberRootNode

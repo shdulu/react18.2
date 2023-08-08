@@ -80,13 +80,19 @@ function scheduleCallback(priorityLevel, callback) {
     priorityLevel, // 任务优先级别
     startTime, // 任务开始时间
     expirationTime, // 任务过期时间
-    sortIndex: expirationTime, // 排序依赖
+    sortIndex: -1, // 排序依赖
   };
   // 向最小堆里添加任务，排序的依据是过期时间
   // 队首的优先级最高
+  newTask.sortIndex = expirationTime
   push(taskQueue, newTask); // [task1, task2, task3]
   requestHostCallback(workLoop);
   return newTask;
+}
+
+function cancelCallback(task) {
+  console.log('cancelCallback..........')
+  task.callback = null;
 }
 
 // /**
@@ -136,13 +142,12 @@ function workLoop(startTime) {
       break;
     }
     // 取出当前任务中的回调函数 - performConcurrentWorkOnRoot()
-    const callback = currentTask.callback();
+    const callback = currentTask.callback;
     if (typeof callback === "function") {
       currentTask.callback = null;
-      // currentPriorityLevel = currentTask.priorityLevel;
       const didUserCallbackTimeout = currentTask.expirationTime <= currentTime;
-
       const continuationCallback = callback(didUserCallbackTimeout);
+      currentTime = getCurrentTime()
       if (typeof continuationCallback === "function") {
         currentTask.callback = continuationCallback;
         return true; // 还有任务要执行返回true
@@ -207,6 +212,7 @@ function getCurrentTime() {
 // }
 
 export {
+  cancelCallback as unstable_cancelCallback,
   scheduleCallback as unstable_scheduleCallback,
   shouldYieldToHost as unstable_shouldYield,
   ImmediatePriority as unstable_ImmediatePriority,
@@ -214,5 +220,4 @@ export {
   NormalPriority as unstable_NormalPriority,
   LowPriority as unstable_LowPriority,
   IdlePriority as unstable_IdlePriority,
-  // getCurrentPriorityLevel,
 };

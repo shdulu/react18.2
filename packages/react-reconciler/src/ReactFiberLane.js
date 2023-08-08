@@ -34,13 +34,28 @@ export function markRootUpdated(root, updateLane) {
   root.pendingLanes |= updateLane;
 }
 
-export function getNextLanes(root) {
+/**
+ *
+ *
+ * @export
+ * @param {*} root
+ * @param {*} wipLanes 当前正在渲染车道
+ * @return {*}
+ */
+export function getNextLanes(root, wipLanes) {
   // 获取根上所有有更新的车道
   const pendingLanes = root.pendingLanes;
   if (pendingLanes === NoLanes) {
     return NoLanes;
   }
+  // 获取root.pendingLanes 所有车道中最高优先级的车道
   const nextLanes = getHighestPriorityLanes(pendingLanes);
+  if (wipLanes !== NoLane && wipLanes !== nextLanes) {
+    // 判断新的车道优先级低于渲染中的车道，返回更高优先级的车道
+    if (nextLanes >= wipLanes) {
+      return wipLanes;
+    }
+  }
   return nextLanes;
 }
 
