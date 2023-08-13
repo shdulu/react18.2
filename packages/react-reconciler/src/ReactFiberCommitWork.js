@@ -10,6 +10,7 @@ import {
   Placement,
   Update,
   LayoutMask,
+  Ref,
 } from "./ReactFiberFlags";
 import {
   HasEffect as HookHasEffect,
@@ -205,6 +206,10 @@ export function commitMutationEffectsOnFiber(finishedWork, root) {
       recursivelyTraverseMutationEffects(root, finishedWork);
       // 在处理自己身上的副作用
       commitReconciliationEffects(finishedWork);
+      if (flags & Ref) {
+        // 提交阶段如果有Ref副作用
+        commitAttachRef(finishedWork);
+      }
       // 处理DOM更新
       if (flags & Update) {
         // 获取真实DOM
@@ -497,4 +502,18 @@ function recursivelyTraverseLayoutEffects(root, parentFiber) {
 
 function commitHookLayoutEffects(finishedWork, hookFlags) {
   commitHookEffectListMount(hookFlags, finishedWork);
+}
+
+function commitAttachRef(finishedWork) {
+  const ref = finishedWork.ref;
+  if (ref !== null) {
+    const instance = finishedWork.stateNode;
+    // ref 属性可以接受一个函数，把instance实例作为参数传递
+    if (typeof ref === "function") {
+      ref(instance);
+    } else {
+      // ref 也可以接受一个属性，把 instance实例赋值给ref属性的current
+      ref.current = instance;
+    }
+  }
 }

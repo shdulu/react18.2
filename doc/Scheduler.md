@@ -104,4 +104,4 @@ port2.postMessage("发送给port1的数据");
 ![scheduler 核心工作循环](./images/核心工作循环.png "scheduler 核心工作循环")
 ![scheduler 核心流程图](./images/核心流程图.png "scheduler 核心流程图")
 
-### 三个工作循环
+### 饥饿问题

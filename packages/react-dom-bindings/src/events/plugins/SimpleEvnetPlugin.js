@@ -63,7 +63,7 @@ function extractEvents(
       listeners, // 监听函数的数组
     });
   }
-  console.log("listeners", listeners);
+  // console.log("listeners", listeners);
 }
 
 export { registerSimpleEvents as registerEvents, extractEvents };

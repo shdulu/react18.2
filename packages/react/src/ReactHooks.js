@@ -18,9 +18,9 @@ export function useReducer(reducer, initialArg) {
   return dispatcher.useReducer(reducer, initialArg);
 }
 
-export function useState(reducer, initialArg) {
+export function useState(initialState) {
   const dispatcher = resolveDispatcher();
-  return dispatcher.useState(reducer, initialArg);
+  return dispatcher.useState(initialState);
 }
 
 /**
@@ -40,4 +40,9 @@ export function useEffect(create, deps) {
 export function useLayoutEffect(create, deps) {
   const dispatcher = resolveDispatcher();
   return dispatcher.useLayoutEffect(create, deps);
+}
+
+export function useRef(initialValue) {
+  const dispatcher = resolveDispatcher();
+  return dispatcher.useRef(initialValue);
 }

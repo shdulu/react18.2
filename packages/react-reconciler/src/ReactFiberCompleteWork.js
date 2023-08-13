@@ -1,4 +1,3 @@
-import logger, { indent } from "shared/logger";
 import {
   HostComponent,
   HostRoot,
@@ -12,7 +11,12 @@ import {
   finalizeInitialChildren,
   prepareUpdate,
 } from "react-dom-bindings/src/client/ReactDOMHostConfig";
-import { NoFlags, Update } from "./ReactFiberFlags";
+import { NoFlags, Ref, Update } from "./ReactFiberFlags";
+import { NoLanes, mergeLanes } from "./ReactFiberLane";
+
+function markRef(workInProgress) {
+  workInProgress.flags |= Ref;
+}
 
 /**
  * 把当前完成的fiber所有的子节点对应的真实DOM都挂载到自己父parent真实dom上
@@ -61,7 +65,6 @@ function updateHostComponent(current, workInProgress, type, newProps) {
   const instance = workInProgress.stateNode; // 老的dom节点
   // 比较新老属性收集属性的差异 - 返回差异属性的数组
   const updatePayload = prepareUpdate(instance, type, oldProps, newProps);
-  console.log("updatePayload", updatePayload);
   // 让原生组件的新fiber更新队列等于
   workInProgress.updateQueue = updatePayload;
   if (updatePayload) {
@@ -78,8 +81,6 @@ function updateHostComponent(current, workInProgress, type, newProps) {
  * @param {*} workInProgress 新的构建的fiber
  */
 export function completeWork(current, workInProgress) {
-  // indent.number -= 2;
-  // logger(" ".repeat(indent.number) + "completeWork", workInProgress);
   const newProps = workInProgress.pendingProps;
   switch (workInProgress.tag) {
     case HostRoot:
@@ -92,12 +93,20 @@ export function completeWork(current, workInProgress) {
       if (current !== null && workInProgress.stateNode !== null) {
         // 如果老fiber存在且老fiber上有真实DOM节点，要走节点更新逻辑
         updateHostComponent(current, workInProgress, type, newProps);
+        if (current.ref !== workInProgress.ref) {
+          // 新老ref不相同，添加Ref副作用
+          markRef(workInProgress);
+        }
       } else {
         const instance = createInstance(type, newProps, workInProgress);
         // 初次渲染把自己所有的儿子都添加到自己身上
         appendAllChildren(instance, workInProgress);
         workInProgress.stateNode = instance;
         finalizeInitialChildren(instance, type, newProps);
+        if (workInProgress.ref !== null) {
+          // 添加Ref副作用
+          markRef(workInProgress);
+        }
       }
       bubbleProperties(workInProgress);
       break;
@@ -126,14 +135,20 @@ export function completeWork(current, workInProgress) {
  * @param {*} completedWork 当前完成的fiber 节点
  */
 function bubbleProperties(completedWork) {
+  let newChildLanes = NoLanes;
   let subtreeFlags = NoFlags;
   let child = completedWork.child;
   // 遍历当前fiber的子节点，把所有子节点的副作用，以及子节点的子节点的副作用全部合并起来
   while (child !== null) {
+    newChildLanes = mergeLanes(
+      newChildLanes,
+      mergeLanes(child.lanes, child.childLanes)
+    );
     subtreeFlags |= child.subtreeFlags;
     subtreeFlags |= child.flags;
     child = child.sibling;
   }
   // TODO- 这里和源码实现不一样注意
+  completedWork.childLanes = newChildLanes;
   completedWork.subtreeFlags = subtreeFlags; // 子节点副作用收集
 }

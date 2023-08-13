@@ -21,6 +21,7 @@ function FiberNode(tag, pendingProps, key) {
   this.type = null; // fiber类型， 来自虚拟DOM节点的type
   // 虚拟DOM -> Fiber节点 -> 真实DOM
   this.stateNode = null; // 此fiber 对应的真是DOM节点
+  this.ref = null;
 
   // Fiber
   this.return = null; // 指向父节点
@@ -43,7 +44,7 @@ function FiberNode(tag, pendingProps, key) {
 
   this.deletions = null; // 存放将要删除的子fiber
   this.lanes = NoLanes;
-  //   this.childLanes = NoLanes;
+  this.childLanes = NoLanes;
 
   // fiber轮替 - 双缓存DOM-DIFF
   // We use a double buffering pooling technique because we know that we'll
@@ -94,14 +95,16 @@ export function createWorkInProgress(current, pendingProps) {
     workInProgress.flags = NoFlags;
     workInProgress.subtreeFlags = NoFlags;
   }
-
-  // workInProgress.flags = current.flags;
+  workInProgress.flags = current.flags;
+  workInProgress.lanes = current.lanes;
+  workInProgress.childLanes = current.childLanes
   workInProgress.child = current.child;
   workInProgress.memoizedProps = current.memoizedProps;
   workInProgress.memoizedState = current.memoizedState;
   workInProgress.updateQueue = current.updateQueue;
   workInProgress.sibling = current.sibling;
   workInProgress.index = current.index;
+  workInProgress.ref = current.ref;
   return workInProgress;
 }
 

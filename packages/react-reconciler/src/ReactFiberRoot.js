@@ -1,6 +1,6 @@
 import { createHostRootFiber } from "./ReactFiber";
 import { initializeUpdateQueue } from "./ReactFiberClassUpdateQueue";
-import { NoLanes, NoLane } from "./ReactFiberLane";
+import { NoLanes, NoLane, createLaneMap, NoTimestamp } from "./ReactFiberLane";
 
 function FiberRootNode(containerInfo) {
   this.containerInfo = containerInfo; // div#root
@@ -10,6 +10,10 @@ function FiberRootNode(containerInfo) {
   this.finishedWork = null;
   this.callbackNode = null;
   this.callbackPriority = NoLane;
+  // 过期时间存放每个赛道过期时间
+  this.expirationTimes = createLaneMap(NoTimestamp);
+  // 过期的赛道
+  this.expiredLanes = NoLanes;
 }
 /**
  * 这里是真正的创建 FiberRootNode

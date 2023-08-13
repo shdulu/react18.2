@@ -5,10 +5,14 @@ import {
   IndeterminateComponent,
   FunctionComponent,
 } from "./ReactWorkTags";
-import { processUpdateQueue, cloneUpdateQueue } from "./ReactFiberClassUpdateQueue";
+import {
+  processUpdateQueue,
+  cloneUpdateQueue,
+} from "./ReactFiberClassUpdateQueue";
 import { mountChildFibers, reconcileChildFibers } from "./ReactChildFiber";
 import { shouldSetTextContent } from "react-dom-bindings/src/client/ReactDOMHostConfig";
 import { renderWithHooks } from "./ReactFiberHooks";
+import { NoLane, NoLanes } from "./ReactFiberLane";
 
 /**
  * 根据新的虚拟DOM生成新的Fiber链表
@@ -87,13 +91,15 @@ export function updateFunctionComponent(
   current,
   workInProgress,
   Component,
-  nextProps
+  nextProps,
+  renderLanes
 ) {
   const nextChildren = renderWithHooks(
     current,
     workInProgress,
     Component,
-    nextProps
+    nextProps,
+    renderLanes
   );
   reconcileChildren(current, workInProgress, nextChildren);
   return workInProgress.child;
@@ -109,6 +115,8 @@ export function updateFunctionComponent(
  * @return {*}
  */
 export function beginWork(current, workInProgress, renderLanes) {
+  // 在构建fiber树之前先清空lanes
+  workInProgress.lanes = 0;
   switch (workInProgress.tag) {
     case HostRoot: // 根节点类型
       return updateHostRoot(current, workInProgress, renderLanes);

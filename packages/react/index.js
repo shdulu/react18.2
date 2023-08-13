@@ -4,6 +4,7 @@ export {
   useState,
   useEffect,
   useLayoutEffect,
+  useRef,
 } from "./src/React";
 
 // 如果我们有一些希望在不同的内部模块之间共享的变量

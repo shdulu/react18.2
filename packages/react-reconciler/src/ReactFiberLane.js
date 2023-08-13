@@ -22,6 +22,9 @@ export const OffscreenLane = /*                   */ 0b1000000000000000000000000
 
 const NonIdleLanes = /*                          */ 0b0001111111111111111111111111111;
 
+// 没有时间戳
+export const NoTimestamp = -1;
+
 /**
  *
  *
@@ -32,6 +35,29 @@ const NonIdleLanes = /*                          */ 0b00011111111111111111111111
 export function markRootUpdated(root, updateLane) {
   // pendingLanes 指此根上等待生效的lane
   root.pendingLanes |= updateLane;
+}
+
+/**
+ * 清除已经计算过的过期车道的过期时间
+ *
+ * @export
+ * @param {*} root
+ * @param {*} remainingLanes
+ */
+export function markRootFinished(root, remainingLanes) {
+  // pendingLanes 根上所有将要被渲染的车道
+  // noLongerPendingLanes - 已经更新过的lane
+  const noLongerPendingLanes = root.pendingLanes & ~remainingLanes;
+  root.pendingLanes = remainingLanes;
+  const expirationTimes = root.expirationTimes;
+  let lanes = noLongerPendingLanes;
+  while (lanes > NoLanes) {
+    // 获取最左侧1的索引
+    const index = pickArbitraryLaneIndex(lanes);
+    const lane = 1 << index;
+    expirationTimes[index] = NoTimestamp;
+    lanes &= ~lane;
+  }
 }
 
 /**
@@ -114,4 +140,70 @@ export function includesBlockingLane(root, lanes) {
     DefaultHydrationLane |
     DefaultLane;
   return (lanes & SyncDefaultLanes) !== NoLanes;
+}
+
+export function includesExpiredLane(root, lanes) {
+  return (lanes & root.expiredLanes) !== NoLanes;
+}
+
+/**
+ * 把饿死的赛道标记为过期
+ *
+ * @export
+ * @param {*} root
+ * @param {*} currentTime
+ */
+export function markStarvedLanesAsExpired(root, currentTime) {
+  // 获取当前有更新赛道
+  const pendingLanes = root.pendingLanes;
+  const expirationTimes = root.expirationTimes;
+  let lanes = pendingLanes;
+  while (lanes > NoLanes) {
+    // 获取最左侧1的索引
+    const index = pickArbitraryLaneIndex(lanes);
+    const lane = 1 << index;
+    const expirationTime = expirationTimes[index];
+    // 如果此赛道上没有过期时间说明没有为此车道设置过期时间
+    if (expirationTime === NoTimestamp) {
+      expirationTimes[index] = computeExpirationTime(lane, currentTime);
+    } else if (expirationTime <= currentTime) {
+      // 把过期车道放到根节点过期车道属性里
+      root.expiredLanes |= lane;
+      console.log('expirationTime:', expirationTime)
+      console.log('currentTime:', currentTime)
+    }
+    lanes &= ~lane;
+  }
+}
+
+/**
+ * 取最左侧1的索引
+ *
+ * @param {*} lanes
+ * @return {*}
+ */
+function pickArbitraryLaneIndex(lanes) {
+  // clz32 返回最左侧的1的左边0的个数
+  return 31 - Math.clz32(lanes);
+}
+
+function computeExpirationTime(lane, currentTime) {
+  switch (lane) {
+    case SyncLane:
+    case InputContinuousLane:
+      return currentTime + 250;
+    case DefaultLane:
+      return currentTime + 5000;
+    case IdleLane:
+    default:
+      return NoTimestamp;
+  }
+}
+
+export function createLaneMap(initial) {
+  const laneMap = [];
+  for (let i = 0; i < TotalLanes; i++) {
+    laneMap.push(initial);
+  }
+  return laneMap;
 }
