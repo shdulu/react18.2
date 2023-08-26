@@ -12,12 +12,16 @@ function FunctionComponent() {
   updateB.id = "updateB" + bCounter++;
   const updateC = (numbers) => new Array(100).fill(numbers[0] + "C");
   updateC.id = "updateC" + cCounter++;
+  useLayoutEffect(() => {
+    console.log('useLayoutEffect..............')
+  }, [])
   useEffect(() => {
+    console.log('useEffect.............')
     timer = setInterval(() => {
       console.log(divRef);
       divRef.current.click(); // 同步任务1
       if (counter++ === 0) {
-        debugger
+        
         setNumbers(updateB); // 同步任务2
       }
       divRef.current.click(); // 同步任务3 => 这三个同步任务同步调度，
@@ -30,7 +34,7 @@ function FunctionComponent() {
     <div
       ref={divRef}
       onClick={() => {
-        debugger;
+        ;
         setNumbers(updateC);
       }}
     >

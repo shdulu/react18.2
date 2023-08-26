@@ -95,8 +95,8 @@ function mountEffect(create, deps) {
 /**
  *
  *
- * @param {*} fiberFlags
- * @param {*} hookFlags
+ * @param {*} fiberFlags fiber标识 useEffect-2048、useLayoutEffect-4
+ * @param {*} hookFlags hook标识 useEffect-8、useLayoutEffect-4
  * @param {*} create
  * @param {*} deps
  */
@@ -272,7 +272,7 @@ function dispatchSetstate(fiber, queue, action) {
 }
 
 function updateReducer(reducer) {
-  debugger
+  
   const hook = updateWorkInProgressHook();
   const queue = hook.queue;
   queue.lastRenderedReducer = reducer;

@@ -95,7 +95,7 @@ function ensureRootIsScheduled(root, currentTime) {
     root.callbackPriority = NoLane;
     return;
   }
-  debugger
+  
   // 获取最新的调度优先级
   let newCallbackPriority = getHighestPriorityLane(nextLanes);
   // 获取现在根上正在运行的优先级
@@ -257,6 +257,7 @@ function commitRoot(root) {
  */
 function commitRootImpl(root) {
   const { finishedWork } = root;
+  
   workInProgressRoot = null;
   workInProgressRootRenderLanes = NoLanes;
   root.callbackNode = null;
@@ -289,6 +290,7 @@ function commitRootImpl(root) {
       "DOM 执行变更 commitMutationEffectsOnFiber ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     );
     commitMutationEffectsOnFiber(finishedWork, root);
+
     // 执行 useLayoutEffect -> DOM 变更之后UI渲染之前执行
     console.log(
       "DOM 执行变更后 commitLayoutEffects ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"

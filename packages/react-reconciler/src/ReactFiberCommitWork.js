@@ -437,6 +437,7 @@ function commitHookEffectListMount(flags, finishedWork) {
   if (lastEffect !== null) {
     const firstEffect = lastEffect.next;
     let effect = firstEffect;
+    debugger
     do {
       // 如果此effect类型和传入的相同，都是9 HookHasEffect | PassiveEffect
       if ((effect.tag & flags) === flags) {
@@ -468,6 +469,7 @@ export function commitLayoutEffects(finishedWork, root) {
  * @param {*} finishedWork
  */
 function commitLayoutEffectOnFiber(finishedRoot, current, finishedWork) {
+  debugger
   const flags = finishedWork.flags;
   switch (finishedWork.tag) {
     case HostRoot: {
