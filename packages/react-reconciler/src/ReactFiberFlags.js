@@ -1,3 +1,4 @@
+// 为什么要用二进制: 性能高计算方便
 // Don't change these values. They're used by React Dev Tools.
 export const NoFlags = /*     0  无         */ 0b0000000000000000000000000000;
 export const PerformedWork = /*             */ 0b0000000000000000000000000001;

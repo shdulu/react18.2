@@ -37,10 +37,12 @@ function FiberNode(tag, pendingProps, key) {
   this.memoizedState = null;
   this.updateQueue = null; // fiber 更新队列
 
-  // Effects react18 新增
+  // Effects react18 新增的功能 - 副作用用二进制位操作标识 ReactFiberFlags
   this.flags = NoFlags; // 副作用标识，标识针对此fiber节点进行何种操作
   this.subtreeFlags = NoFlags; // 子节点副作用标识-性能优化
+  // 记录flags 值可以递归阶段性能优化，没有副作用辨识的子节点无需再递归
   // React 执行两个阶段 1. render计算副作用 2. commit提交副作用
+  // 在递归的 completed 阶段每个fiber节点完成会通过 bubbleProperties 冒泡属性
 
   this.deletions = null; // 存放将要删除的子fiber
   this.lanes = NoLanes;

@@ -29,11 +29,15 @@ export function createFiberRoot(containerInfo) {
   // 创建div#root 对应的 fiber根节点 HostRootFiber
   const uninitializedFiber = createHostRootFiber();
   // div#root根容器的current指向根节点fiber
+  // current 指的是当前根容器正在显示的或者已经渲染好的fiber树
   root.current = uninitializedFiber;
   // 根节点fiber的stateNode属性指向，指向FiberRootNode真实DOM
   uninitializedFiber.stateNode = root;
 
-  // 给fiber添加更新队列
+  // 给fiber添加更新队列 - fiber树的构建依据虚拟DOM树结构
   initializeUpdateQueue(uninitializedFiber);
   return root;
 }
+
+
+// 根节点比较特殊不需要创建虚拟dom。直接已经有根节点的真实dom，对用的fiber节点为 fiberRootNode

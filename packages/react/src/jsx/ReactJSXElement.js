@@ -1,6 +1,8 @@
 // 需要配置 jsconfig.json 告诉vscode 如何查找文件
 import hasOwnProperty from "shared/hasOwnProperty";
 import { REACT_ELEMENT_TYPE } from "shared/ReactSymbols";
+import ReactSharedInternals from "shared/ReactSharedInternals";
+const ReactCurrentOwner = ReactSharedInternals.ReactCurrentOwner;
 
 const RESERVED_PROPS = {
   key: true,
@@ -16,18 +18,22 @@ const RESERVED_PROPS = {
  * @param {*} type
  * @param {*} key
  * @param {string|object} ref
+ * @param {*} owner
  * @param {*} props
  */
-function ReactElement(type, key, ref, props) {
+function ReactElement(type, key, ref, owner, props) {
   const element = {
     // This tag allows us to uniquely identify this as a React Element
-    $$typeof: REACT_ELEMENT_TYPE,
+    $$typeof: REACT_ELEMENT_TYPE, // TODO: Symbol.for("react.element")
     // Built-in properties that belong on the element
     type,
     key,
     ref,
     props,
+    // Record the component responsible for creating this element.
+    _owner: owner,
   };
+  // 开发环境还会有 _store _self _source 三个属性
   return element;
 }
 
@@ -61,5 +67,5 @@ export function jsxDEV(type, config, maybekey) {
       props[propName] = config[propName];
     }
   }
-  return ReactElement(type, key, ref, props);
+  return ReactElement(type, key, ref, ReactCurrentOwner.current, props);
 }

@@ -17,7 +17,7 @@ export function initializeUpdateQueue(fiber) {
     firstBaseUpdate: null,
     lastBaseUpdate: null,
     shared: {
-      pending: null, // 循环链表
+      pending: null, // 循环链表  queue.pending -> update1 - update1.next -> update2 -update2.next -> update1
     },
   };
   fiber.updateQueue = queue;
