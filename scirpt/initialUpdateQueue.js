@@ -59,6 +59,10 @@ let update2 = createUpdate();
 update2.payload = { age: 18 };
 enqueueUpdate(fiber, update2);
 
+let update3 = createUpdate();
+update3.payload = { sex: 'man' };
+enqueueUpdate(fiber, update3);
+
 //  基于老状态计算新状态
 processUpdateQueue(fiber);
 
