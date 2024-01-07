@@ -43,6 +43,10 @@ export function createUpdate(lane) {
 export function enqueueUpdate(fiber, update, lane) {
   // 获取更新队列
   const updateQueue = fiber.updateQueue;
+  if (updateQueue === null) {
+    // Only occurs if the fiber has been unmounted.
+    return null;
+  }
   // 获取共享队列
   const sharedQueue = updateQueue.shared;
   // 并发更新
@@ -149,7 +153,7 @@ export function processUpdateQueue(workInProgress, props, renderLanes) {
   }
 }
 /**
- * 根据老状态和更新
+ * 根据老状态和更新计算新状态
  *
  * @param {*} update
  * @param {*} prevState

@@ -12,7 +12,7 @@ import { HostText } from "./ReactWorkTags";
 /**
  *
  *
- * @param {*} shouldTrackSideEffects 是否更新副作用
+ * @param {*} shouldTrackSideEffects 是否跟踪副作用
  */
 function createChildReconciler(shouldTrackSideEffects) {
   function useFiber(fiber, pendingProps) {
@@ -99,7 +99,7 @@ function createChildReconciler(shouldTrackSideEffects) {
   }
 
   /**
-   * 设置副作用
+   * 设置新fiber副作用,给fiber节点 flags 属性打标
    *
    * @param {*} newFiber
    * @return {*}
@@ -107,7 +107,7 @@ function createChildReconciler(shouldTrackSideEffects) {
   function placeSingleChild(newFiber) {
     if (shouldTrackSideEffects && newFiber.alternate === null) {
       // 需要添加副作用且alternate为空 - 插入操作
-      // 要在最后的提交阶段插入此节点
+      // 此标识在提交阶段去使用， 根据标识执行对应的副作用
       // React 的渲染分成 渲染(创建fiber树)和提交（更新真实DOM）两个阶段
       newFiber.flags |= Placement;
     }
@@ -366,7 +366,7 @@ function createChildReconciler(shouldTrackSideEffects) {
     return existingChildren;
   }
   /**
-   * 比较子fibers DOM-DIFF 就是用老的子fiber链表和新的虚拟DOM进行比较的过程
+   * 比较子fiber DOM-DIFF 就是用老的子fiber链表和新的虚拟DOM进行比较的过程
    *
    * @param {*} returnFiber 新的父fiber
    * @param {*} currentFirstChild 老fiber第一个子fiber current一般指老的

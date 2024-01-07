@@ -27,7 +27,7 @@ export function createContainer(containerInfo) {
 export function updateContainer(element, container) {
   // 获取当前根fiber
   const current = container.current;
-  const eventTime = requestEventTime();
+  
   // 请求一个更新的车道
   const lane = requestUpdateLane(current);
   // 创建更新
@@ -38,6 +38,7 @@ export function updateContainer(element, container) {
   // 更新入队
   const root = enqueueUpdate(current, update, lane);
   if (root !== null) {
+    const eventTime = requestEventTime();
     // 初始挂载阶段 调度 更新fiber
     scheduleUpdateOnFiber(root, current, lane, eventTime);
   }

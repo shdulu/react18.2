@@ -18,9 +18,9 @@ function FiberNode(tag, pendingProps, key) {
   // Instance
   this.tag = tag;
   this.key = key;
-  this.type = null; // fiber类型， 来自虚拟DOM节点的type
-  // 虚拟DOM -> Fiber节点 -> 真实DOM
-  this.stateNode = null; // 此fiber 对应的真是DOM节点
+  this.type = null; // fiber类型，来自虚拟DOM节点的type
+  // 每个虚拟DOM -> Fiber节点 -> 真实DOM
+  this.stateNode = null; // 此 fiber 对应的真是DOM节点
   this.ref = null;
 
   // Fiber
@@ -35,7 +35,7 @@ function FiberNode(tag, pendingProps, key) {
   // 类组件对应的fiber 存的是类的实例状态
   // HostRoot存的是要渲染的元素
   this.memoizedState = null;
-  this.updateQueue = null; // fiber 更新队列
+  this.updateQueue = null; // 每个 fiber 更新队列
 
   // Effects react18 新增的功能 - 副作用用二进制位操作标识 ReactFiberFlags
   this.flags = NoFlags; // 副作用标识，标识针对此fiber节点进行何种操作

@@ -76,6 +76,11 @@ export function scheduleUpdateOnFiber(root, fiber, lane, eventTime) {
   ensureRootIsScheduled(root, eventTime);
 }
 
+// Use this function to schedule a task for a root. There's only one task per
+// root; if a task was already scheduled, we'll check to make sure the priority
+// of the existing task is the same as the priority of the next level that the
+// root has work on. This function is called on every update, and right before
+// exiting a task.
 /**
  *
  *
@@ -95,7 +100,7 @@ function ensureRootIsScheduled(root, currentTime) {
     root.callbackPriority = NoLane;
     return;
   }
-  
+
   // 获取最新的调度优先级
   let newCallbackPriority = getHighestPriorityLane(nextLanes);
   // 获取现在根上正在运行的优先级
@@ -257,7 +262,7 @@ function commitRoot(root) {
  */
 function commitRootImpl(root) {
   const { finishedWork } = root;
-  
+
   workInProgressRoot = null;
   workInProgressRootRenderLanes = NoLanes;
   root.callbackNode = null;
@@ -305,7 +310,7 @@ function commitRootImpl(root) {
   // 等DOM变更后，就可以把root的current指向新的
   root.current = finishedWork;
   // 在提交之后因为根上可能存在跳过的更新，所以需要重新再次调度
-  // 
+  //
   ensureRootIsScheduled(root, now());
 }
 
