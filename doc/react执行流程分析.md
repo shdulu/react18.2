@@ -135,10 +135,18 @@ FiberRootNode.prototype.render = function() { updateContainer(vdom, root) }
 
 #### render 执行渲染阶段
 
-- render 执行渲染分为 `render`渲染 和 `commit`提交 两个阶段
-- `render` 渲染阶段根据虚拟 DOM 创建新的 fiber 链表。基于旧的 fiber 和新的虚拟 dom 做 dom-diff、打标副作用节点
-- `commit` 提交阶段基于新的 fiber 树，执行副作用更新真实 DOM, 改变 current 指针，把内存中的图像显示到显示屏
-- 新旧 fiber 树通过 alternate 指针相互引用
+- `render` 执行渲染可以分为 **递** 和 **归** 两个阶段;
+- `render` 渲染阶段从根 `HostRootFiber` 开始向下深度优先遍历，调用 `beginWork` 方法创建新的子`fiber` 节点，并通过`child/return` 属性连接构建 `fiber` 链表。非初次渲染会基于旧的 `fiber` 和新的虚拟 `DOM` 做 `DOM-DIFF`、打标副作用节点;
+  - 根节点的 `HostRootFiber` 的更新队列 `updateQueue: { payload: { element }}`, `element` 是经过`babel`转译的虚拟 `DOM` 树;
+  - 新旧 `fiber` 节点通过 `alternate` 指针相互引用
+  - 节点的 **增删改查** 副作用通过 `fiber` 节点的 `flags、subtreeFlags` 属性记录;
+  - 当遍历到叶子节点没有子节点 `child`的时候进入调用 `completeWork` 方法进入**归阶段**
+  - `completeWork` 接受新旧 `fiber` 对象做为入参，向上递归创建真实DOM节点、更新属性、冒泡副作用标识直到**归**到 `HostRootFiber`，至此 `render 阶段` 的工作完成
+  
+#### commit 提交阶段
+  
+- `commit` 提交阶段基于新的 `fiber` 树，执行副作用更新真实 DOM, 改变 current 指针，把内存中的图像显示到显示屏
+
 
 - 深度优先从根节点开始构建 fiber 树 `createWorkInProgress`， 会基于老的 fiber 和新的属性 `pendingProps` 创建出新的 fiber
 <!-- 此处补一下fiber的节点属性/ -->
@@ -147,6 +155,7 @@ FiberRootNode.prototype.render = function() { updateContainer(vdom, root) }
 
 ```js
 // 同步执行的工作循环，从根节点
+// function syncWorkLoop
 function workLoopConcurrent() {
   while (workInProgress !== null && !shouldYield()) {
     // 执行工作单元
@@ -156,6 +165,7 @@ function workLoopConcurrent() {
 function performUnitOfWork(unitOfWork) {
   const current = unitOfWork.alternate;
   // 从根节点出发构建一个新的fiber链表
+  // beginWork 是递归中的`递动作`从根节点出发深度优先的方式，创建一个新的fiber链表
   const next = beginWork(current, unitOfWork, workInProgressRootRenderLanes);
   if (next === null) {
     // 如果此fiber没有子节点，完成此fiber节点
@@ -171,6 +181,8 @@ function completeUnitOfWork(unitOfWork) {
     const current = completedWork.alternate; // 对应的老fiber
     const returnFiber = completedWork.return; // 父fiber
     // 执行此fiber的完成工作，如果是原生组件的话就是创建真实的dom节点
+    // 根据fiber tag 类型执行对应的逻辑，同时向上冒泡收集副作用
+    // completeWork 递归的`归动作`, 从深层底部子节点出发向上回归创建真实dom节点并且向上冒泡收集副作用。如果是初始渲染阶段，父节点负责子节点真实DOM挂载在自己身上，这样一层一层向上递归，最后commit提交插入真实DOM 树
     completeWork(current, completedWork);
     const siblingFiber = completedWork.sibling;
     if (siblingFiber !== null) {

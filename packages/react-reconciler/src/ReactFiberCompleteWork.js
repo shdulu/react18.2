@@ -19,6 +19,7 @@ function markRef(workInProgress) {
 }
 
 /**
+ * 这里有点绕需要理解
  * 把当前完成的fiber所有的子节点对应的真实DOM都挂载到自己父parent真实dom上
  *
  * @param {*} parent 当前完成的fiber真实dom节点
@@ -99,7 +100,7 @@ export function completeWork(current, workInProgress) {
         }
       } else {
         const instance = createInstance(type, newProps, workInProgress);
-        // 初次渲染把自己所有的儿子都添加到自己身上
+        // 没有老节点: 初次渲染把自己所有的儿子都添加到自己身上
         appendAllChildren(instance, workInProgress);
         workInProgress.stateNode = instance;
         finalizeInitialChildren(instance, type, newProps);
@@ -144,8 +145,8 @@ function bubbleProperties(completedWork) {
       newChildLanes,
       mergeLanes(child.lanes, child.childLanes)
     );
-    subtreeFlags |= child.subtreeFlags;
-    subtreeFlags |= child.flags;
+    subtreeFlags |= child.subtreeFlags; 
+    subtreeFlags |= child.flags; 
     child = child.sibling;
   }
   // TODO- 这里和源码实现不一样注意
