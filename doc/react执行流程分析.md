@@ -141,12 +141,11 @@ FiberRootNode.prototype.render = function() { updateContainer(vdom, root) }
   - 新旧 `fiber` 节点通过 `alternate` 指针相互引用
   - 节点的 **增删改查** 副作用通过 `fiber` 节点的 `flags、subtreeFlags` 属性记录;
   - 当遍历到叶子节点没有子节点 `child`的时候进入调用 `completeWork` 方法进入**归阶段**
-  - `completeWork` 接受新旧 `fiber` 对象做为入参，向上递归创建真实DOM节点、更新属性、冒泡副作用标识直到**归**到 `HostRootFiber`，至此 `render 阶段` 的工作完成
-  
-#### commit 提交阶段
-  
-- `commit` 提交阶段基于新的 `fiber` 树，执行副作用更新真实 DOM, 改变 current 指针，把内存中的图像显示到显示屏
+  - `completeWork` 接受新旧 `fiber` 对象做为入参，向上递归创建真实 DOM 节点、更新属性、冒泡副作用标识直到**归**到 `HostRootFiber`，至此 `render 阶段` 的工作完成
 
+#### commit 提交阶段
+
+- `commit` 提交阶段基于新的 `fiber` 树，执行副作用更新真实 DOM, 改变 current 指针，把内存中的图像显示到显示屏, commitRoot 先遍历子节点，处理子节点上的副作用，然后再处理自己的副作用
 
 - 深度优先从根节点开始构建 fiber 树 `createWorkInProgress`， 会基于老的 fiber 和新的属性 `pendingProps` 创建出新的 fiber
 <!-- 此处补一下fiber的节点属性/ -->
