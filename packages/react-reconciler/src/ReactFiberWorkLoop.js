@@ -156,6 +156,8 @@ function ensureRootIsScheduled(root, currentTime) {
   root.callbackNode = newCallbackNode;
 }
 /**
+ * Scheduler 调取器执行的函数
+ * 
  * 并发渲染
  * 根据虚拟DOM构建fiber，要创建真实的DOM节点，插入到容器
  * 执行root上的并发更新工作
@@ -329,7 +331,7 @@ function prepareFreshStack(root, renderLanes) {
 }
 
 /**
- *
+ * 构建fiber 树
  *
  * @param {*} root
  * @param {*} renderLanes
