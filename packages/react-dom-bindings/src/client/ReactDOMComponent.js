@@ -5,7 +5,15 @@ import { setValueForProperty } from "./DOMPropertyOperations";
 const STYLE = "style";
 const CHILDREN = "children";
 
+/**
+ * 
+ *
+ * @param {*} tag
+ * @param {*} domElement
+ * @param {*} nextProps
+ */
 function setInitialDOMProperties(tag, domElement, nextProps) {
+  debugger
   for (const propKey in nextProps) {
     if (Object.hasOwnProperty.call(nextProps, propKey)) {
       const nextProp = nextProps[propKey];
@@ -24,7 +32,7 @@ function setInitialDOMProperties(tag, domElement, nextProps) {
   }
 }
 /**
- *
+ * 
  *
  * @export
  * @param {*} domElement

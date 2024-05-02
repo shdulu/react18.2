@@ -13,6 +13,7 @@ import {
 } from "react-dom-bindings/src/client/ReactDOMHostConfig";
 import { NoFlags, Ref, Update } from "./ReactFiberFlags";
 import { NoLanes, mergeLanes } from "./ReactFiberLane";
+import logger, { indent } from "shared/logger";
 
 function markRef(workInProgress) {
   workInProgress.flags |= Ref;
@@ -26,9 +27,10 @@ function markRef(workInProgress) {
  * @param {*} workInProgress 完成的fiber
  */
 function appendAllChildren(parent, workInProgress) {
+  debugger
   let node = workInProgress.child;
   while (node) {
-    // 处理真实dom节点类型
+    // 处理原生节点或者文本节点
     if (node.tag === HostComponent || node.tag === HostText) {
       appendInitialChild(parent, node.stateNode);
     } else if (node.child !== null) {
@@ -82,6 +84,8 @@ function updateHostComponent(current, workInProgress, type, newProps) {
  * @param {*} workInProgress 新的构建的fiber
  */
 export function completeWork(current, workInProgress) {
+  indent.number -= 2
+  logger(" ".repeat(indent.number) + "completeWork", workInProgress);
   const newProps = workInProgress.pendingProps;
   switch (workInProgress.tag) {
     case HostRoot:
@@ -99,7 +103,9 @@ export function completeWork(current, workInProgress) {
           markRef(workInProgress);
         }
       } else {
+        debugger
         const instance = createInstance(type, newProps, workInProgress);
+        // 初次渲染子节点是没有副作用的
         // 没有老节点: 初次渲染把自己所有的儿子都添加到自己身上
         appendAllChildren(instance, workInProgress);
         workInProgress.stateNode = instance;
@@ -145,11 +151,11 @@ function bubbleProperties(completedWork) {
       newChildLanes,
       mergeLanes(child.lanes, child.childLanes)
     );
-    subtreeFlags |= child.subtreeFlags; 
-    subtreeFlags |= child.flags; 
+    subtreeFlags |= child.subtreeFlags;
+    subtreeFlags |= child.flags;
     child = child.sibling;
   }
-  // TODO- 这里和源码实现不一样注意
+  // TODO 这里和源码实现不一样注意
   completedWork.childLanes = newChildLanes;
   completedWork.subtreeFlags = subtreeFlags; // 子节点副作用收集
 }

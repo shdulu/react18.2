@@ -157,7 +157,7 @@ function commitPlacement(finishedWork) {
   switch (parentFiber.tag) {
     case HostRoot: {
       const parent = parentFiber.stateNode.containerInfo;
-      const before = getHostSibling(finishedWork); // 获取最近的真实DOM节点的弟弟
+      const before = getHostSibling(finishedWork); // 获取最近的真实DOM节点的弟弟 处理插入dom节点
       insertOrAppendPlacementNode(finishedWork, before, parent);
       break;
     }
@@ -180,6 +180,7 @@ function commitPlacement(finishedWork) {
  * @param {*} root 根节点
  */
 export function commitMutationEffectsOnFiber(finishedWork, root) {
+  debugger
   const current = finishedWork.alternate;
   const flags = finishedWork.flags;
   switch (finishedWork.tag) {
@@ -437,7 +438,6 @@ function commitHookEffectListMount(flags, finishedWork) {
   if (lastEffect !== null) {
     const firstEffect = lastEffect.next;
     let effect = firstEffect;
-    debugger
     do {
       // 如果此effect类型和传入的相同，都是9 HookHasEffect | PassiveEffect
       if ((effect.tag & flags) === flags) {
@@ -469,7 +469,6 @@ export function commitLayoutEffects(finishedWork, root) {
  * @param {*} finishedWork
  */
 function commitLayoutEffectOnFiber(finishedRoot, current, finishedWork) {
-  debugger
   const flags = finishedWork.flags;
   switch (finishedWork.tag) {
     case HostRoot: {

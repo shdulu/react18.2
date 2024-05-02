@@ -13,6 +13,7 @@ import { mountChildFibers, reconcileChildFibers } from "./ReactChildFiber";
 import { shouldSetTextContent } from "react-dom-bindings/src/client/ReactDOMHostConfig";
 import { renderWithHooks } from "./ReactFiberHooks";
 import { NoLane, NoLanes } from "./ReactFiberLane";
+import logger, { indent } from "shared/logger";
 
 /**
  * 根据新的虚拟DOM生成新的Fiber链表
@@ -22,6 +23,7 @@ import { NoLane, NoLanes } from "./ReactFiberLane";
  * @param {*} nextChildren 新的子虚拟 DOM
  */
 function reconcileChildren(current, workInProgress, nextChildren) {
+  debugger;
   if (current === null) {
     // 没有老Fiber, 说明此fiber是新创建的 - 挂载子Fiber
     workInProgress.child = mountChildFibers(workInProgress, null, nextChildren);
@@ -51,7 +53,7 @@ function updateHostRoot(current, workInProgress, renderLanes) {
   return workInProgress.child; // child -> element 对应的fiber
 }
 /**
- * 构建原生组件的fiber链表
+ * 构建原生标签的fiber链表
  *
  * @param {*} current 老fiber
  * @param {*} workInProgress 新fiber
@@ -60,6 +62,7 @@ function updateHostComponent(current, workInProgress) {
   const { type } = workInProgress;
   const nextProps = workInProgress.pendingProps;
   let nextChildren = nextProps.children;
+  debugger;
   // 判断当前虚拟DOM它的儿子是不是一个文本的独生子
   const isDirectTextChild = shouldSetTextContent(type, nextProps);
   if (isDirectTextChild) {
@@ -118,6 +121,8 @@ export function updateFunctionComponent(
  */
 export function beginWork(current, workInProgress, renderLanes) {
   // 在构建fiber树之前先清空lanes
+  indent.number += 2
+  logger(" ".repeat(indent.number) + "beginWork", workInProgress);
   workInProgress.lanes = 0;
   switch (workInProgress.tag) {
     case HostRoot: // 根节点类型

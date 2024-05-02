@@ -1,3 +1,4 @@
+
 // fiber 的工作循环
 import {
   now,
@@ -145,6 +146,7 @@ function ensureRootIsScheduled(root, currentTime) {
         schedulerPriorityLevel = NormalSchedulerPriority;
         break;
     }
+    debugger
     // Scheduler_scheduleCallback 返回正在调取的任务
     newCallbackNode = Scheduler_scheduleCallback(
       schedulerPriorityLevel,
@@ -165,6 +167,7 @@ function ensureRootIsScheduled(root, currentTime) {
  * @param {*} root
  */
 function performConcurrentWorkOnRoot(root, didTimeout) {
+  debugger
   // 先获取当前根节点上的任务
   const originalCallbackNode = root.callbackNode;
   // 获取当前优先级最高的车道
@@ -204,6 +207,7 @@ function performConcurrentWorkOnRoot(root, didTimeout) {
  *
  */
 function performSyncWorkOnRoot(root) {
+  debugger
   // 计算最高优先级的lane
   const lanes = getNextLanes(root);
   // 渲染新的fiber树
@@ -286,6 +290,7 @@ function commitRootImpl(root) {
     }
   }
   console.log("开始 commit ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+  debugger
   // 判断子树是否有副作用
   const subtreeHasEffects =
     (finishedWork.subtreeFlags & MutationMask) !== NoFlags;
@@ -337,6 +342,7 @@ function prepareFreshStack(root, renderLanes) {
  * @param {*} renderLanes
  */
 function renderRootSync(root, renderLanes) {
+  debugger
   // 如果新的根和老的根不一样，或者新的渲染优先级和老的渲染优先级不一样
   if (
     root !== workInProgressRoot ||
@@ -379,6 +385,10 @@ function performUnitOfWork(unitOfWork) {
   unitOfWork.memoizedProps = unitOfWork.pendingProps;
   if (next === null) {
     // If this doesn't spawn new work, complete the current work.
+    // 如果没有子节点了，开始完成work
+    // 不同类型的fiber完成work做的事情不一样
+    // 如果是原生fiber创建真实dom节点
+    debugger
     completeUnitOfWork(unitOfWork);
   } else {
     // 如果有子节点，就让子节点成为下一个工作单元
@@ -399,16 +409,19 @@ function completeUnitOfWork(unitOfWork) {
     const returnFiber = completedWork.return; // 父fiber
     // 执行此fiber的完成工作，如果是原生组件的话就是创建真实的dom节点
     completeWork(current, completedWork);
+    // 完成当前去找他的弟弟
     const siblingFiber = completedWork.sibling;
     if (siblingFiber !== null) {
+      // 如果有弟弟去构建弟弟对应的fiber子链表
       workInProgress = siblingFiber;
       return;
     }
     // 如果没有弟弟，说明当前完成的就是父fiber的最后一个节点
     // 也就是一个父fiber所有的子fiber全部完成了
+    // 所有子fiber完成了去完成父fiber
     completedWork = returnFiber;
     workInProgress = completedWork;
-  } while (completedWork !== null);
+  } while (completedWork !== null); // 一直递归上跟fiber退出循环
   // 如果走到这里说明fiber树全部构建完毕,把构建状态设置为完成
   if (workInProgressRootExitStatus === RootInProgress) {
     workInProgressRootExitStatus = RootCompleted;

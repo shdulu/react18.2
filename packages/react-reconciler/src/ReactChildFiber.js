@@ -375,6 +375,7 @@ function createChildReconciler(shouldTrackSideEffects) {
   function reconcileChildFibers(returnFiber, currentFirstChild, newChild) {
     // 现在需要处理更新的逻辑，处理dom diff
     // 现在暂时只考虑新的节点
+    debugger
     if (typeof newChild === "object" && newChild !== null) {
       switch (newChild.$$typeof) {
         case REACT_ELEMENT_TYPE:

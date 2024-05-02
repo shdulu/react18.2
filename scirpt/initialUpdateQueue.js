@@ -49,7 +49,6 @@ function getStateFromUpdate(update, newState) {
 }
 
 let fiber = { memoizedState: { id: 1 } };
-debugger
 initializeUpdateQueue(fiber);
 let update1 = createUpdate();
 update1.payload = { name: "shdulu" };

@@ -28,7 +28,6 @@ function enqueueUpdate(fiber, update) {
 }
 
 let fiber = { memoizedState: { id: 1 } };
-debugger;
 initializeUpdateQueue(fiber);
 
 let update1 = createUpdate();

@@ -1,5 +1,5 @@
 /**
- *
+ * dom 属性操作
  *
  * @export
  * @param {*} node
