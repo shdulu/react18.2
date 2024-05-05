@@ -2,6 +2,7 @@ import {
   createContainer,
   updateContainer,
 } from "react-reconciler/src/ReactFiberReconciler";
+debugger
 import { listenToAllSupportedEvents } from "react-dom-bindings/src/events/DOMPluginEvnetSystem";
 
 /**

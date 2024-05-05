@@ -3,6 +3,7 @@ import {
   topLevelEventsToReactNames,
 } from "../DOMEventProperties";
 import { IS_CAPTURE_PHASE } from "../EventSystemFlags";
+debugger
 import { accumulateSinglePhaseListeners } from "../DOMPluginEvnetSystem";
 import { SyntheticMouseEvent } from "../SyntheticEvent";
 

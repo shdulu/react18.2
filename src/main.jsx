@@ -67,8 +67,19 @@ function FunctionComponent1() {
 let element1 = <FunctionComponent1></FunctionComponent1>;
 
 let element2 = (
-  <h1 id="title">
-    hello <span style={{ color: "red" }}>world !</span>
+  <h1
+    id="title"
+    onClick={() => console.log("父冒泡")}
+    onClickCapture={() => console.log("父捕获")}
+  >
+    hello{" "}
+    <span
+      onClick={() => console.log("子冒泡")}
+      onClickCapture={() => console.log("子捕获")}
+      style={{ color: "red" }}
+    >
+      world !
+    </span>
   </h1>
 );
 

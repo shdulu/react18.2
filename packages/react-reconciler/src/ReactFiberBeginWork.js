@@ -127,7 +127,7 @@ export function beginWork(current, workInProgress, renderLanes) {
   switch (workInProgress.tag) {
     case HostRoot: // 根节点类型
       return updateHostRoot(current, workInProgress, renderLanes);
-    case FunctionComponent: {
+    case FunctionComponent: { // 函数类型
       const Component = workInProgress.type;
       const nextProps = workInProgress.pendingProps;
       return updateFunctionComponent(

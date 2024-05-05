@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+    <script defer src="./event.js"></script>
   </head>
   <body>
     <div id="root">
@@ -13,21 +14,4 @@
       </div>
     </div>
   </body>
-  <script>
-    let root = document.getElementById("root");
-    let parent = document.getElementById("parent");
-    let child = document.getElementById("child");
-    // 模拟React中的事件委托
-    // 捕获
-    root.addEventListener("click", (event) => dispatchEvent(event, true), true);
-    // 冒泡
-    root.addEventListener(
-      "click",
-      (event) => dispatchEvent(event, false),
-      false
-    );
-    function dispatchEvent(event, isCapture) {
-      console.log(event, isCapture);
-    }
-  </script>
 </html>

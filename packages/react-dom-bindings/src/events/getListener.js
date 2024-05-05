@@ -4,8 +4,8 @@ import { getFiberCurrentPropsFromNode } from "../client/ReactDOMComponentTree";
  * 获取此fiber上对应的回调函数
  *
  * @export
- * @param {*} inst
- * @param {*} registrationName
+ * @param {*} inst fiber 节点
+ * @param {*} registrationName 注册的事件名 onClick
  */
 export default function getListener(inst, registrationName) {
   const { stateNode } = inst;

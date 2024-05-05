@@ -268,7 +268,7 @@ function commitRoot(root) {
  */
 function commitRootImpl(root) {
   const { finishedWork } = root;
-
+  debugger
   workInProgressRoot = null;
   workInProgressRootRenderLanes = NoLanes;
   root.callbackNode = null;
