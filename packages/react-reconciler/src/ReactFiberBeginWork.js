@@ -23,7 +23,7 @@ import logger, { indent } from "shared/logger";
  * @param {*} nextChildren 新的子虚拟 DOM
  */
 function reconcileChildren(current, workInProgress, nextChildren) {
-  debugger;
+  ;
   if (current === null) {
     // 没有老Fiber, 说明此fiber是新创建的 - 挂载子Fiber
     workInProgress.child = mountChildFibers(workInProgress, null, nextChildren);
@@ -62,7 +62,7 @@ function updateHostComponent(current, workInProgress) {
   const { type } = workInProgress;
   const nextProps = workInProgress.pendingProps;
   let nextChildren = nextProps.children;
-  debugger;
+  ;
   // 判断当前虚拟DOM它的儿子是不是一个文本的独生子
   const isDirectTextChild = shouldSetTextContent(type, nextProps);
   if (isDirectTextChild) {

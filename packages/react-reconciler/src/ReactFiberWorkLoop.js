@@ -146,7 +146,7 @@ function ensureRootIsScheduled(root, currentTime) {
         schedulerPriorityLevel = NormalSchedulerPriority;
         break;
     }
-    debugger
+    
     // Scheduler_scheduleCallback 返回正在调取的任务
     newCallbackNode = Scheduler_scheduleCallback(
       schedulerPriorityLevel,
@@ -167,7 +167,7 @@ function ensureRootIsScheduled(root, currentTime) {
  * @param {*} root
  */
 function performConcurrentWorkOnRoot(root, didTimeout) {
-  debugger
+  
   // 先获取当前根节点上的任务
   const originalCallbackNode = root.callbackNode;
   // 获取当前优先级最高的车道
@@ -207,7 +207,7 @@ function performConcurrentWorkOnRoot(root, didTimeout) {
  *
  */
 function performSyncWorkOnRoot(root) {
-  debugger
+  
   // 计算最高优先级的lane
   const lanes = getNextLanes(root);
   // 渲染新的fiber树
@@ -268,7 +268,7 @@ function commitRoot(root) {
  */
 function commitRootImpl(root) {
   const { finishedWork } = root;
-  debugger
+  
   workInProgressRoot = null;
   workInProgressRootRenderLanes = NoLanes;
   root.callbackNode = null;
@@ -290,7 +290,7 @@ function commitRootImpl(root) {
     }
   }
   console.log("开始 commit ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-  debugger
+  
   // 判断子树是否有副作用
   const subtreeHasEffects =
     (finishedWork.subtreeFlags & MutationMask) !== NoFlags;
@@ -342,7 +342,7 @@ function prepareFreshStack(root, renderLanes) {
  * @param {*} renderLanes
  */
 function renderRootSync(root, renderLanes) {
-  debugger
+  
   // 如果新的根和老的根不一样，或者新的渲染优先级和老的渲染优先级不一样
   if (
     root !== workInProgressRoot ||
@@ -388,7 +388,7 @@ function performUnitOfWork(unitOfWork) {
     // 如果没有子节点了，开始完成work
     // 不同类型的fiber完成work做的事情不一样
     // 如果是原生fiber创建真实dom节点
-    debugger
+    
     completeUnitOfWork(unitOfWork);
   } else {
     // 如果有子节点，就让子节点成为下一个工作单元

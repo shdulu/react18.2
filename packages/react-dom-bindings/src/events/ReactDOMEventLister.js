@@ -84,6 +84,7 @@ export function dispatchEvent(
   targetContainer,
   nativeEvent
 ) {
+  debugger
   // 获取事件源，它是一个真实DOM
   const nativeEventTarget = getEventTarget(nativeEvent);
   const targetInst = getClosestInstanceFromNode(nativeEventTarget);

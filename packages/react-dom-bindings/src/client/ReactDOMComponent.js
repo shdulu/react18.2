@@ -13,7 +13,7 @@ const CHILDREN = "children";
  * @param {*} nextProps
  */
 function setInitialDOMProperties(tag, domElement, nextProps) {
-  debugger
+  
   for (const propKey in nextProps) {
     if (Object.hasOwnProperty.call(nextProps, propKey)) {
       const nextProp = nextProps[propKey];

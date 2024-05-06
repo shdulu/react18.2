@@ -26,7 +26,7 @@ export function createContainer(containerInfo) {
  */
 export function updateContainer(element, container) {
 
-  debugger
+  
   // 获取当前根fiber
   const current = container.current;
   

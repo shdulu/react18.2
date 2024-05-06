@@ -11,7 +11,7 @@ import getListener from "./getListener";
  */
 
 import { allNativeEvents } from "./EventRegistry";
-debugger
+
 import * as SimpleEventPlugin from "./plugins/SimpleEvnetPlugin";
 import getEventTarget from "./getEventTarget";
 import { HostComponent } from "react-reconciler/src/ReactWorkTags";

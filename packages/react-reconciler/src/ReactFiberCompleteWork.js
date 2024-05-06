@@ -27,7 +27,7 @@ function markRef(workInProgress) {
  * @param {*} workInProgress 完成的fiber
  */
 function appendAllChildren(parent, workInProgress) {
-  debugger
+  
   let node = workInProgress.child;
   while (node) {
     // 处理原生节点或者文本节点
@@ -103,7 +103,7 @@ export function completeWork(current, workInProgress) {
           markRef(workInProgress);
         }
       } else {
-        debugger
+        
         const instance = createInstance(type, newProps, workInProgress);
         // 初次渲染子节点是没有副作用的
         // 没有老节点: 初次渲染把自己所有的儿子都添加到自己身上
