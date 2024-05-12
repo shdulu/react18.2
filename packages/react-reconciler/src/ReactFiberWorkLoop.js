@@ -1,4 +1,3 @@
-
 // fiber 的工作循环
 import {
   now,
@@ -146,7 +145,7 @@ function ensureRootIsScheduled(root, currentTime) {
         schedulerPriorityLevel = NormalSchedulerPriority;
         break;
     }
-    
+
     // Scheduler_scheduleCallback 返回正在调取的任务
     newCallbackNode = Scheduler_scheduleCallback(
       schedulerPriorityLevel,
@@ -159,7 +158,7 @@ function ensureRootIsScheduled(root, currentTime) {
 }
 /**
  * Scheduler 调取器执行的函数
- * 
+ *
  * 并发渲染
  * 根据虚拟DOM构建fiber，要创建真实的DOM节点，插入到容器
  * 执行root上的并发更新工作
@@ -167,7 +166,6 @@ function ensureRootIsScheduled(root, currentTime) {
  * @param {*} root
  */
 function performConcurrentWorkOnRoot(root, didTimeout) {
-  
   // 先获取当前根节点上的任务
   const originalCallbackNode = root.callbackNode;
   // 获取当前优先级最高的车道
@@ -207,7 +205,6 @@ function performConcurrentWorkOnRoot(root, didTimeout) {
  *
  */
 function performSyncWorkOnRoot(root) {
-  
   // 计算最高优先级的lane
   const lanes = getNextLanes(root);
   // 渲染新的fiber树
@@ -268,7 +265,7 @@ function commitRoot(root) {
  */
 function commitRootImpl(root) {
   const { finishedWork } = root;
-  
+
   workInProgressRoot = null;
   workInProgressRootRenderLanes = NoLanes;
   root.callbackNode = null;
@@ -290,7 +287,7 @@ function commitRootImpl(root) {
     }
   }
   console.log("开始 commit ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-  
+
   // 判断子树是否有副作用
   const subtreeHasEffects =
     (finishedWork.subtreeFlags & MutationMask) !== NoFlags;
@@ -342,7 +339,6 @@ function prepareFreshStack(root, renderLanes) {
  * @param {*} renderLanes
  */
 function renderRootSync(root, renderLanes) {
-  
   // 如果新的根和老的根不一样，或者新的渲染优先级和老的渲染优先级不一样
   if (
     root !== workInProgressRoot ||
@@ -360,7 +356,6 @@ function workLoopConcurrent() {
   // 如果有下一个要构建的fiber，且时间片没有过期
   while (workInProgress !== null && !shouldYield()) {
     // 执行工作单元
-    sleep(5);
     performUnitOfWork(workInProgress);
   }
 }
@@ -388,7 +383,6 @@ function performUnitOfWork(unitOfWork) {
     // 如果没有子节点了，开始完成work
     // 不同类型的fiber完成work做的事情不一样
     // 如果是原生fiber创建真实dom节点
-    
     completeUnitOfWork(unitOfWork);
   } else {
     // 如果有子节点，就让子节点成为下一个工作单元

@@ -23,7 +23,6 @@ import logger, { indent } from "shared/logger";
  * @param {*} nextChildren 新的子虚拟 DOM
  */
 function reconcileChildren(current, workInProgress, nextChildren) {
-  ;
   if (current === null) {
     // 没有老Fiber, 说明此fiber是新创建的 - 挂载子Fiber
     workInProgress.child = mountChildFibers(workInProgress, null, nextChildren);
@@ -62,7 +61,6 @@ function updateHostComponent(current, workInProgress) {
   const { type } = workInProgress;
   const nextProps = workInProgress.pendingProps;
   let nextChildren = nextProps.children;
-  ;
   // 判断当前虚拟DOM它的儿子是不是一个文本的独生子
   const isDirectTextChild = shouldSetTextContent(type, nextProps);
   if (isDirectTextChild) {
@@ -121,13 +119,14 @@ export function updateFunctionComponent(
  */
 export function beginWork(current, workInProgress, renderLanes) {
   // 在构建fiber树之前先清空lanes
-  indent.number += 2
+  indent.number += 2;
   logger(" ".repeat(indent.number) + "beginWork", workInProgress);
   workInProgress.lanes = 0;
   switch (workInProgress.tag) {
     case HostRoot: // 根节点类型
       return updateHostRoot(current, workInProgress, renderLanes);
-    case FunctionComponent: { // 函数类型
+    case FunctionComponent: {
+      // 函数类型
       const Component = workInProgress.type;
       const nextProps = workInProgress.pendingProps;
       return updateFunctionComponent(

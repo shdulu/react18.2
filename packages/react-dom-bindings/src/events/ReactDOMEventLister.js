@@ -45,7 +45,7 @@ export function createEventListerWrapperWithPriority(
 }
 
 /**
- *
+ * 事件代理的执行函数
  *
  * @param {*} domEventName 事件名 click
  * @param {*} eventSystemFlags 阶段 0冒泡 4捕获
@@ -84,7 +84,6 @@ export function dispatchEvent(
   targetContainer,
   nativeEvent
 ) {
-  debugger
   // 获取事件源，它是一个真实DOM
   const nativeEventTarget = getEventTarget(nativeEvent);
   const targetInst = getClosestInstanceFromNode(nativeEventTarget);

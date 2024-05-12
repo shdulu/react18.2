@@ -12,7 +12,10 @@ function resolveDispatcher() {
  * @param {*} initialArg 初始状态
  */
 export function useReducer(reducer, initialArg) {
+  // resolveDispatcher() 执行返回一个全局共享对象，在函数组件渲染阶段 renderWithHooks 函数中给这个变量赋值
+  // dispatcher: {useReducer, useState, useEffect}
   const dispatcher = resolveDispatcher();
+
   // renderWithHooks执行给 -> ReactCurrentDispatcher.current 添加 useReducer属性
   // 调用useReducer实际是执行
   return dispatcher.useReducer(reducer, initialArg);

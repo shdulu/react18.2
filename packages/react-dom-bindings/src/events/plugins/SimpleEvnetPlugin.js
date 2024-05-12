@@ -32,6 +32,16 @@ function extractEvents(
   let SyntheticEventCtor; // 合成事件的构造函数
   switch (domEventName) {
     case "click":
+    case "auxclick":
+    case "dblclick":
+    case "mousedown":
+    case "mousemove":
+    case "mouseup":
+    // TODO: Disabled elements should not respond to mouse events
+    /* falls through */
+    case "mouseout":
+    case "mouseover":
+    case "contextmenu":
       SyntheticEventCtor = SyntheticMouseEvent;
       break;
 
@@ -64,7 +74,6 @@ function extractEvents(
       listeners, // 监听函数的数组
     });
   }
-  // console.log("listeners", listeners);
 }
 
 export { registerSimpleEvents as registerEvents, extractEvents };

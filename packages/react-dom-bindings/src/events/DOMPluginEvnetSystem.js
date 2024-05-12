@@ -96,7 +96,7 @@ function addTrappedEventListener(
 }
 
 /**
- *
+ * 插件中心派发的执行事件
  *
  * @export
  * @param {*} domEventName click
@@ -121,6 +121,7 @@ export function dispatchEventForPluginEventSystem(
   );
 }
 
+// 为插件派发事件 
 function dispatchEventForPlugins(
   domEventName,
   eventSystemFlags,
@@ -130,7 +131,7 @@ function dispatchEventForPlugins(
 ) {
   // 触发事件的事件源
   const nativeEventTarget = getEventTarget(nativeEvent);
-  // 派发事件的数组
+  // 派发事件的队列
   const dispatchQueue = [];
   extractEvents(
     dispatchQueue,
@@ -182,6 +183,17 @@ function processDispatchQueueItemsInOrder(
   }
 }
 
+/**
+ * 提取事件
+ *
+ * @param {*} dispatchQueue
+ * @param {*} domEventName
+ * @param {*} targetInst
+ * @param {*} nativeEvent
+ * @param {*} nativeEventTarget
+ * @param {*} eventSystemFlags
+ * @param {*} targetContainer
+ */
 function extractEvents(
   dispatchQueue,
   domEventName,
@@ -202,6 +214,16 @@ function extractEvents(
   );
 }
 
+/**
+ * 累加一个阶段(捕获或者冒泡)事件监听
+ *
+ * @export
+ * @param {*} targetFiber
+ * @param {*} reactName
+ * @param {*} nativeEventType
+ * @param {*} isCapturePhase
+ * @return {*} 
+ */
 export function accumulateSinglePhaseListeners(
   targetFiber,
   reactName,

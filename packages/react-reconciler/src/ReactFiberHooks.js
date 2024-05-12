@@ -272,7 +272,6 @@ function dispatchSetstate(fiber, queue, action) {
 }
 
 function updateReducer(reducer) {
-  
   const hook = updateWorkInProgressHook();
   const queue = hook.queue;
   queue.lastRenderedReducer = reducer;
@@ -362,6 +361,7 @@ function updateReducer(reducer) {
  * @return {*}
  */
 function mountReducer(reducer, initialArg) {
+  debugger
   const hook = mountWorkInProgressHook();
   hook.memoizedState = initialArg;
   const queue = {
@@ -383,9 +383,9 @@ function mountReducer(reducer, initialArg) {
 /**
  * 执行派发动作的方法，它要更新状态，并且让界面重新更新
  *
- * @param {*} fiber Function 对用的fiber
- * @param {*} queue hook 对应的更新队列
- * @param {*} action 派发的动作
+ * @param {*} fiber Function 组件本身对应的fiber
+ * @param {*} queue hooks 对应的更新队列
+ * @param {*} action 派发的动作 {type: "ADD", payload: 0}
  */
 function dispatchReducerAction(fiber, queue, action) {
   // TODO: 这里的lane
@@ -416,7 +416,7 @@ function mountWorkInProgressHook() {
     baseState: null, // 第一个跳过的更新前的状态
     baseQueue: null, // 跳过的更新的链表
   };
-  // 构建一个单向循环链表
+  // 构建一个单向链表
   if (workInProgressHook === null) {
     // 当前函数对应的fiber的状态memoizedState 指向hooks链表中的第一个
     // 函数组件的memoizedState属性存的是hook的单链表
@@ -428,7 +428,15 @@ function mountWorkInProgressHook() {
 }
 
 /**
- * 渲染函数组件
+ * 渲染函数组件同时处理函数组件的hooks
+ * beginWork 阶段从HostRootNode开始递归遍历构建新的fiber树
+ * 遇到函数类型的组件需要处理函数组件的 hooks
+ * 函数组件的本质是一个函数返回 React 元素节点
+ * 在函数执行之前需要处理 函数组件的hooks
+ * 通过一个全局共享的变量 ReactCurrentDispatcher.current -> 记录当前hooks类型
+ *
+ * 函数组件会通过链表存储当前函数组件的hooks
+ *
  *
  * @export
  * @param {*} current 老fiber
@@ -449,15 +457,14 @@ export function renderWithHooks(
   currentlyRenderingFiber = workInProgress; // 当前正在执行的fiber
   workInProgress.updateQueue = null;
   workInProgress.memoizedState = null;
-  // React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED
+  debugger;
   if (current !== null && current.memoizedState !== null) {
     // 如果有老的fiber，并且有老的hook链表 - 更新
     ReactCurrentDispatcher.current = HooksDispatcherOnUpdate;
   } else {
-    // - 初次挂载
+    // 初次挂载阶段的hooks
     ReactCurrentDispatcher.current = HooksDispatcherOnMount;
   }
-
   // 需要在函数组件执行前给 ReactCurrentDispatcher.current 赋值
   const children = Component(props);
   currentlyRenderingFiber = null;

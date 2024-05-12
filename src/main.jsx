@@ -1,5 +1,11 @@
 import { createRoot } from "react-dom/client";
-import { useState, useEffect, useLayoutEffect, useRef } from "react";
+import {
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useReducer,
+} from "react";
 
 let counter = 0;
 let timer;
@@ -67,24 +73,40 @@ function FunctionComponent1() {
 let element1 = <FunctionComponent1></FunctionComponent1>;
 
 let element2 = (
-  <h1
-    id="title"
+  <div
     onClick={() => console.log("父冒泡")}
     onClickCapture={() => console.log("父捕获")}
+    style={{ border: "3px solid red" }}
   >
-    hello{" "}
-    <span
+    <h1
+      id="title"
       onClick={() => console.log("子冒泡")}
       onClickCapture={() => console.log("子捕获")}
-      style={{ color: "red" }}
     >
-      world !
-    </span>
-  </h1>
+      hello{" "}
+      <span
+        onClick={() => console.log("孙冒泡")}
+        onClickCapture={() => console.log("孙捕获")}
+        style={{ color: "red" }}
+      >
+        world !
+      </span>
+    </h1>
+  </div>
 );
+
+function FunctionComponent2() {
+  const [count, setCount] = useState(0);
+  return (
+    <h1 id="title">
+      hello <span style={{ color: "red" }}>world!</span>
+      <button onClick={() => setCount(100)}>{count}</button>
+    </h1>
+  );
+}
 
 const root = createRoot(document.getElementById("root"));
 
 // root -> FiberRootNode {current: HostRootFiber, containerInfo: #root}
 
-root.render(element2);
+root.render(<FunctionComponent2></FunctionComponent2>);
