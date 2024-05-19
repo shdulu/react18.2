@@ -284,7 +284,7 @@ function createChildReconciler(shouldTrackSideEffects) {
         newIdx,
         newChildren[newIdx]
       );
-      if (newFiber !== null) {
+      if (newFiber && newFiber !== null) {
         if (shouldTrackSideEffects) {
           if (newFiber.alternate !== null) {
             // 如果要跟踪副作用，并且有老fiber

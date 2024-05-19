@@ -82,8 +82,6 @@ export function scheduleUpdateOnFiber(root, fiber, lane, eventTime) {
 // root has work on. This function is called on every update, and right before
 // exiting a task.
 /**
- *
- *
  * @param {*} root
  * @return {*}
  */
@@ -145,7 +143,7 @@ function ensureRootIsScheduled(root, currentTime) {
         schedulerPriorityLevel = NormalSchedulerPriority;
         break;
     }
-
+    debugger
     // Scheduler_scheduleCallback 返回正在调取的任务
     newCallbackNode = Scheduler_scheduleCallback(
       schedulerPriorityLevel,
@@ -166,6 +164,7 @@ function ensureRootIsScheduled(root, currentTime) {
  * @param {*} root
  */
 function performConcurrentWorkOnRoot(root, didTimeout) {
+  debugger
   // 先获取当前根节点上的任务
   const originalCallbackNode = root.callbackNode;
   // 获取当前优先级最高的车道

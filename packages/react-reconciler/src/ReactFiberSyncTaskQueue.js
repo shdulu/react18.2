@@ -20,6 +20,7 @@ export function scheduleSyncCallback(callback) {
 }
 
 export function flushSyncCallbacks() {
+  debugger
   if (!isFlushingSyncQueue && syncQueue !== null) {
     isFlushingSyncQueue = true;
     let i = 0;

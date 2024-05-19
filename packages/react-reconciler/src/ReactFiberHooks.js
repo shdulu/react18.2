@@ -72,6 +72,8 @@ function updateWorkInProgressHook() {
   // 根据老hook创建新hook
   const newHook = {
     memoizedState: currentHook.memoizedState,
+    baseState: currentHook.baseState,
+    baseQueue: currentHook.baseQueue,
     queue: currentHook.queue,
     next: null,
   };
@@ -275,9 +277,13 @@ function updateReducer(reducer) {
   const hook = updateWorkInProgressHook();
   const queue = hook.queue;
   queue.lastRenderedReducer = reducer;
+
   const current = currentHook;
+
   let baseQueue = current.baseQueue;
+
   const pendingQueue = queue.pending;
+
   if (pendingQueue !== null) {
     if (baseQueue !== null) {
       const baseFirst = baseQueue.next;
@@ -291,6 +297,7 @@ function updateReducer(reducer) {
   if (baseQueue !== null) {
     const first = baseQueue.next;
     let newState = current.baseState;
+
     let newBaseState = null;
     let newBaseQueueFirst = null;
     let newBaseQueueLast = null;
@@ -361,9 +368,8 @@ function updateReducer(reducer) {
  * @return {*}
  */
 function mountReducer(reducer, initialArg) {
-  debugger
   const hook = mountWorkInProgressHook();
-  hook.memoizedState = initialArg;
+  hook.memoizedState = hook.baseState = initialArg;
   const queue = {
     // 当前hooks的更新队列
     pending: null,
@@ -377,6 +383,7 @@ function mountReducer(reducer, initialArg) {
     currentlyRenderingFiber,
     queue
   ));
+  
   return [hook.memoizedState, dispatch];
 }
 
@@ -390,18 +397,21 @@ function mountReducer(reducer, initialArg) {
 function dispatchReducerAction(fiber, queue, action) {
   // TODO: 这里的lane
   // 更新会在每个hook里存放一个更新队列，更新队列是一个更新对象的循环链表
-  // const lane = requestUpdateLane();
+  const lane = requestUpdateLane();
   const update = {
+    lane,
     action, // 更新动作 {type: 'add', payload: 1}
-    next: null,
+    next: null, // 指向下一个更新
   };
   // 1. 把当前最新的更新对象添加到更新队列中，并且返回当前的根fiber节点,
   // 2.入队并发的hook更新
 
   const root = enqueueConcurrentHookUpdate(fiber, queue, update);
-  const eventTime = requestEventTime();
-  // 从根节点重新调度更新 - 初始挂载也是根节点开始调度更新
-  scheduleUpdateOnFiber(root, fiber, lane, eventTime);
+  if (root !== null) {
+    const eventTime = requestEventTime();
+    // 从根节点重新调度更新 - 初始挂载也是根节点开始调度更新
+    scheduleUpdateOnFiber(root, fiber, lane, eventTime);
+  }
 }
 
 /**
@@ -443,6 +453,7 @@ function mountWorkInProgressHook() {
  * @param {*} workInProgress 新fiber
  * @param {*} Component 组件定义
  * @param {*} props 组件属性
+ * @param {*} nextRenderLanes 组件属性
  * @returns 虚拟DOM或者说React元素
  */
 export function renderWithHooks(
@@ -455,9 +466,11 @@ export function renderWithHooks(
   // 当前正在渲染的车道
   renderLanes = nextRenderLanes;
   currentlyRenderingFiber = workInProgress; // 当前正在执行的fiber
-  workInProgress.updateQueue = null;
+
   workInProgress.memoizedState = null;
-  debugger;
+  workInProgress.updateQueue = null;
+  workInProgress.lanes = NoLanes;
+
   if (current !== null && current.memoizedState !== null) {
     // 如果有老的fiber，并且有老的hook链表 - 更新
     ReactCurrentDispatcher.current = HooksDispatcherOnUpdate;

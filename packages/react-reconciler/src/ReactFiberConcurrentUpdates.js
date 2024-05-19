@@ -5,6 +5,7 @@ let concurrentQueuesIndex = 0;
 
 /**
  * 把更新先缓存到 concurrentQueues 数组中
+ * 多个 hook 的并发更新通过本地缓存数组，先存起来
  *
  * @param {*} fiber
  * @param {*} queue
@@ -19,7 +20,13 @@ function enqueueUpdate(fiber, queue, update, lane) {
   fiber.lanes = mergeLanes(fiber.lanes, lane);
 }
 
+/**
+ * 完成
+ *
+ * @export
+ */
 export function finishQueueingConcurrentUpdates() {
+  debugger
   const endIndex = concurrentQueuesIndex;
   concurrentQueuesIndex = 0;
   let i = 0;
@@ -30,6 +37,7 @@ export function finishQueueingConcurrentUpdates() {
     const lane = concurrentQueues[i++];
     if (queue !== null && update !== null) {
       const pending = queue.pending;
+      // 构成循环链表
       if (pending === null) {
         update.next = update;
       } else {
@@ -52,6 +60,7 @@ export function finishQueueingConcurrentUpdates() {
  */
 export function enqueueConcurrentHookUpdate(fiber, queue, update, lane) {
   enqueueUpdate(fiber, queue, update, lane);
+  // 从当前fiber找到根节点 root
   return getRootForUpdatedFiber(fiber);
 }
 

@@ -2,7 +2,8 @@ import ReactCurrentDispatcher from "./ReactCurrentDispatcher";
 
 function resolveDispatcher() {
   // 函数执行前要给 current 赋值
-  return ReactCurrentDispatcher.current;
+  const dispatcher = ReactCurrentDispatcher.current;
+  return dispatcher;
 }
 /**
  *
@@ -12,6 +13,7 @@ function resolveDispatcher() {
  * @param {*} initialArg 初始状态
  */
 export function useReducer(reducer, initialArg) {
+  ;
   // resolveDispatcher() 执行返回一个全局共享对象，在函数组件渲染阶段 renderWithHooks 函数中给这个变量赋值
   // dispatcher: {useReducer, useState, useEffect}
   const dispatcher = resolveDispatcher();

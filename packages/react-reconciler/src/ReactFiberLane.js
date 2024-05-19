@@ -169,8 +169,6 @@ export function markStarvedLanesAsExpired(root, currentTime) {
     } else if (expirationTime <= currentTime) {
       // 把过期车道放到根节点过期车道属性里
       root.expiredLanes |= lane;
-      console.log('expirationTime:', expirationTime)
-      console.log('currentTime:', currentTime)
     }
     lanes &= ~lane;
   }
