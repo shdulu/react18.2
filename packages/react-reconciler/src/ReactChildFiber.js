@@ -15,6 +15,7 @@ import { HostText } from "./ReactWorkTags";
  * @param {*} shouldTrackSideEffects 是否跟踪副作用
  */
 function createChildReconciler(shouldTrackSideEffects) {
+  // 复用fiber节点 —> 根据老的fiber节点新的属性，得到新的fiebr
   function useFiber(fiber, pendingProps) {
     const clone = createWorkInProgress(fiber, pendingProps);
     clone.index = 0;

@@ -26,7 +26,7 @@ function enqueueUpdate(fiber, queue, update, lane) {
  * @export
  */
 export function finishQueueingConcurrentUpdates() {
-  debugger
+  
   const endIndex = concurrentQueuesIndex;
   concurrentQueuesIndex = 0;
   let i = 0;

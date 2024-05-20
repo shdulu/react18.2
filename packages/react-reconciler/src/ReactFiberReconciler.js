@@ -25,8 +25,6 @@ export function createContainer(containerInfo) {
  * @param {*} container DOM容器 FiberRootNode实例
  */
 export function updateContainer(element, container) {
-
-  
   // 获取当前根fiber
   const current = container.current;
   

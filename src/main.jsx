@@ -117,7 +117,7 @@ function FunctionComponent2() {
       <div style={{ display: "flex", border: "1px solid red" }}>
         <button
           onClick={() => {
-            debugger;
+            ;
             // 根据车道优先级同步任务注册回调批量更新
             dispatchNumber({ type: "ADD", payload: 1 });
             dispatchNumber({ type: "ADD", payload: 2 });
