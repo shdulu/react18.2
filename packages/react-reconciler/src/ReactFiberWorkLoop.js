@@ -71,7 +71,6 @@ let currentEventTime = NoTimestamp;
  * @param {*} lane
  */
 export function scheduleUpdateOnFiber(root, fiber, lane, eventTime) {
-  debugger
   markRootUpdated(root, lane);
   // 确保调度执行root上的更新
   ensureRootIsScheduled(root, eventTime);
@@ -115,6 +114,7 @@ function ensureRootIsScheduled(root, currentTime) {
   }
   // 新的回调任务
   let newCallbackNode;
+  debugger
   if (includesSyncLane(newCallbackPriority)) {
     // 同步优先级任务
     // 先把 performSyncWorkOnRoot 添加到同步队列中

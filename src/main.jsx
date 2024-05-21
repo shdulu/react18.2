@@ -107,40 +107,21 @@ function numberAcc(state, action) {
 }
 
 function FunctionComponent2() {
-  const [count, setCount] = useState(10);
+  debugger
   const [number, dispatchNumber] = useReducer(numberAcc, 0);
-
   return (
-    <h1 id="title">
-      hello <span style={{ color: "red" }}>world!</span>
-      <button onClick={() => setCount(100)}>{count}</button>
-      <div style={{ display: "flex", border: "1px solid red" }}>
-        <button
-          onClick={() => {
-            ;
-            // 根据车道优先级同步任务注册回调批量更新
-            dispatchNumber({ type: "ADD", payload: 1 });
-            dispatchNumber({ type: "ADD", payload: 2 });
-            dispatchNumber({ type: "ADD", payload: 3 });
-          }}
-        >
-          + 1
-        </button>
-        <p>这里是文案 {number} </p>
-        <button
-          onClick={() => {
-            dispatchNumber({ type: "DEC", payload: 1 });
-          }}
-        >
-          - 1
-        </button>
-      </div>
-    </h1>
+    <button
+      onClick={() => {
+        dispatchNumber({ type: "ADD", payload: 1 });
+        dispatchNumber({ type: "ADD", payload: 2 });
+        dispatchNumber({ type: "ADD", payload: 3 });
+      }}
+    >
+      {number}
+    </button>
   );
 }
 
 const root = createRoot(document.getElementById("root"));
-
-// root -> FiberRootNode {current: HostRootFiber, containerInfo: #root}
 
 root.render(<FunctionComponent2></FunctionComponent2>);
