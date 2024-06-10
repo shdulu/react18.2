@@ -53,6 +53,7 @@ export function setInitialProperties(domElement, tag, props) {
  * @param {*} nextProps
  */
 export function diffProperties(domElement, tag, lastProps, nextProps) {
+  
   let updatePayload = null;
   let propKey;
   let styleName;

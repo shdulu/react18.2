@@ -27,7 +27,6 @@ function markRef(workInProgress) {
  * @param {*} workInProgress 完成的fiber
  */
 function appendAllChildren(parent, workInProgress) {
-  
   let node = workInProgress.child;
   while (node) {
     // 处理原生节点或者文本节点
@@ -68,9 +67,24 @@ function updateHostComponent(current, workInProgress, type, newProps) {
   const oldProps = current.memoizedProps; // 老的属性
   const instance = workInProgress.stateNode; // 老的dom节点
   // 比较新老属性收集属性的差异 - 返回差异属性的数组
-  debugger
+  ;
   const updatePayload = prepareUpdate(instance, type, oldProps, newProps);
   // 让原生组件的新fiber更新队列等于
+
+  // 原生組件的更新队列是一个成对的数组列表
+  // [
+  //   "id",
+  //   1717295876085,
+  //   "onClick",
+  //   () => {...},
+  //   "children",
+  //   6,
+  //   "style",
+  //   {
+  //     color: "red",
+  //   },
+  // ];
+
   workInProgress.updateQueue = updatePayload;
   if (updatePayload) {
     // 如果有更新队列给fiber打Update标记!!!
@@ -87,7 +101,7 @@ function updateHostComponent(current, workInProgress, type, newProps) {
  * @param {*} workInProgress 新的构建的fiber
  */
 export function completeWork(current, workInProgress) {
-  indent.number -= 2
+  indent.number -= 2;
   logger(" ".repeat(indent.number) + "completeWork", workInProgress);
   const newProps = workInProgress.pendingProps;
   switch (workInProgress.tag) {

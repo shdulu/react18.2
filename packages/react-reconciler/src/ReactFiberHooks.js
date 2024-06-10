@@ -217,11 +217,15 @@ function createFunctionComponentUpdateQueue() {
  */
 function mountState(initialState) {
   const hook = mountWorkInProgressHook();
+  if (typeof initialState === "function") {
+    initialState = initialState();
+  }
   hook.memoizedState = hook.baseState = initialState;
   const queue = {
     pending: null,
+    lanes: NoLanes,
     dispatch: null,
-    lastRenderedReducer: baseStateReducer, // 上一个reducer
+    lastRenderedReducer: basicStateReducer, // 上一个reducer
     lastRenderedState: initialState, // 上一个state
   };
   hook.queue = queue;
@@ -234,11 +238,11 @@ function mountState(initialState) {
 }
 
 // useState 其实就是一个内置了reducer的useReducer
-function baseStateReducer(state, action) {
+function basicStateReducer(state, action) {
   return typeof action === "function" ? action(state) : action;
 }
 function updateState(initialState) {
-  return updateReducer(baseStateReducer, initialState);
+  return updateReducer(basicStateReducer, initialState);
 }
 
 function dispatchSetstate(fiber, queue, action) {
@@ -257,20 +261,24 @@ function dispatchSetstate(fiber, queue, action) {
     fiber.lanes === NoLanes &&
     (alternate === null || alternate.lanes === NoLanes)
   ) {
-    const { lastRenderedReducer, lastRenderedState } = queue;
-    const eagerState = lastRenderedReducer(lastRenderedState, action);
-    update.hasEagerState = true;
-    update.eagerState = eagerState;
-    if (Object.is(eagerState, lastRenderedState)) {
-      return;
+    const { lastRenderedReducer, lastRenderedState: currentState } = queue;
+    if (lastRenderedReducer !== null) {
+      const eagerState = lastRenderedReducer(currentState, action);
+      update.hasEagerState = true;
+      update.eagerState = eagerState;
+      if (Object.is(eagerState, currentState)) {
+        return;
+      }
     }
   }
   // 正常情况下会先调度更新，然后才会计算新的状态
   // mountState -> 优化了这里先立刻计算了一次状态做一次对比,如果一样就不再调度更新
   // 入队更新，并调度更新逻辑
   const root = enqueueConcurrentHookUpdate(fiber, queue, update, lane);
-  const eventTime = requestEventTime();
-  scheduleUpdateOnFiber(root, fiber, lane, eventTime);
+  if (root !== null) {
+    const eventTime = requestEventTime();
+    scheduleUpdateOnFiber(root, fiber, lane, eventTime);
+  }
 }
 
 function updateReducer(reducer) {
@@ -383,7 +391,7 @@ function mountReducer(reducer, initialArg) {
     currentlyRenderingFiber,
     queue
   ));
-  
+
   return [hook.memoizedState, dispatch];
 }
 

@@ -107,10 +107,17 @@ function numberAcc(state, action) {
 }
 
 function FunctionComponent2() {
-  debugger
   const [number, dispatchNumber] = useReducer(numberAcc, 0);
+  let attrs = {
+    id: Date.now(),
+  };
+  if (number === 6) {
+    delete attrs.id;
+    attrs.style = { color: "red" };
+  }
   return (
     <button
+      {...attrs}
       onClick={() => {
         dispatchNumber({ type: "ADD", payload: 1 });
         dispatchNumber({ type: "ADD", payload: 2 });
