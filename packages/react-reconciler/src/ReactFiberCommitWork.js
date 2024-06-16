@@ -180,7 +180,6 @@ function commitPlacement(finishedWork) {
  * @param {*} root 根节点
  */
 export function commitMutationEffectsOnFiber(finishedWork, root) {
-  
   const current = finishedWork.alternate;
   const flags = finishedWork.flags;
   switch (finishedWork.tag) {
@@ -266,6 +265,7 @@ function commitDeletionEffects(root, returnFiber, deleteFiber) {
     }
     parent = parent.return;
   }
+  // 找到真实dom父节点后执行删除操作
   commitDeletionEffectsOnFiber(root, returnFiber, deleteFiber);
   HostParent = null;
 }
@@ -304,7 +304,7 @@ function commitDeletionEffectsOnFiber(
 }
 
 /**
- *
+ * 遍历递归删除effect
  *
  * @param {*} finishedRoot
  * @param {*} nearestMountedAncestor

@@ -24,7 +24,8 @@ function createChildReconciler(shouldTrackSideEffects) {
   }
 
   /**
-   *
+   * 删除父fiber下的子节点
+   * fiber 的 deletions 属性用来收集要删除的子节点列表，同时fiebr 打上删除的副作用标识
    *
    * @param {*} returnFiber
    * @param {*} childToDelete
